@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Create Account (Step 1 of 2)</title>
+  <meta name="description" content="Create your BodhSetu account to get clear guidance on public services and schemes.">
+
+  <style>
+    :root {
+      --ink: #14211c;
+      --muted: #5b6862;
+      --line: #dcdfd9;
+      --paper: #f7f6f1;
+      --accent: #1f5a45;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+    }
+    .top a { color: var(--ink); font-weight: 600; text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 8px 24px 64px;
+    }
+
+    .panel { width: 100%; max-width: 420px; }
+
+    .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.1rem;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .lead { color: var(--muted); margin-bottom: 26px; }
+
+    .field { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+
+    input {
+      width: 100%;
+      height: 50px;
+      padding: 0 14px;
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    .field.error input { border-color: var(--ink); outline: 2px solid var(--ink); }
+
+    .pw { position: relative; }
+    .pw input { padding-right: 70px; }
+    .pw button {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      height: 38px;
+      width: auto;
+      padding: 0 10px;
+      background: none;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+    .pw button:hover { background: none; text-decoration: underline; }
+
+    .error-text { display: none; margin-top: 6px; font-size: 0.85rem; font-weight: 600; }
+    .field.error .error-text { display: block; }
+
+    button {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #17473a; }
+    button:disabled { opacity: 0.6; cursor: default; }
+
+    .switch { margin-top: 20px; color: var(--muted); font-size: 0.95rem; }
+    .switch a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .switch a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <a href="index.html">← Back to home</a>
+    <a href="login.html">Sign In</a>
+  </div>
+
+  <main>
+    <div class="panel">
+      <p class="eyebrow">Step 1 of 2 · Basic details</p>
+      <h1>Create your account</h1>
+      <p class="lead">It takes a minute. You’ll complete your profile on the next page.</p>
+
+      <form id="form" novalidate>
+        <div class="field" id="nameField">
+          <label for="fullName">Full name</label>
+          <input type="text" id="fullName" autocomplete="name" placeholder="Enter your full name">
+          <div class="error-text">Please enter your full name.</div>
+        </div>
+
+        <div class="field" id="contactField">
+          <label for="contact">Email or mobile number</label>
+          <input type="text" id="contact" autocomplete="username" placeholder="name@example.com or 9876543210">
+          <div class="error-text">Please enter a valid email address or 10-digit mobile number.</div>
+        </div>
+
+        <div class="field" id="passwordField">
+          <label for="password">Password</label>
+          <div class="pw">
+            <input type="password" id="password" autocomplete="new-password" placeholder="At least 6 characters">
+            <button type="button" id="toggle" aria-label="Show password">Show</button>
+          </div>
+          <div class="error-text">Password must be at least 6 characters.</div>
+        </div>
+
+        <div class="field" id="stateField">
+          <label for="state">State / Union Territory</label>
+          <input type="text" id="state" list="stateList" autocomplete="off" placeholder="Start typing to search">
+          <datalist id="stateList">
+          <option value="Andhra Pradesh"></option>
+          <option value="Arunachal Pradesh"></option>
+          <option value="Assam"></option>
+          <option value="Bihar"></option>
+          <option value="Chhattisgarh"></option>
+          <option value="Goa"></option>
+          <option value="Gujarat"></option>
+          <option value="Haryana"></option>
+          <option value="Himachal Pradesh"></option>
+          <option value="Jharkhand"></option>
+          <option value="Karnataka"></option>
+          <option value="Kerala"></option>
+          <option value="Madhya Pradesh"></option>
+          <option value="Maharashtra"></option>
+          <option value="Manipur"></option>
+          <option value="Meghalaya"></option>
+          <option value="Mizoram"></option>
+          <option value="Nagaland"></option>
+          <option value="Odisha"></option>
+          <option value="Punjab"></option>
+          <option value="Rajasthan"></option>
+          <option value="Sikkim"></option>
+          <option value="Tamil Nadu"></option>
+          <option value="Telangana"></option>
+          <option value="Tripura"></option>
+          <option value="Uttar Pradesh"></option>
+          <option value="Uttarakhand"></option>
+          <option value="West Bengal"></option>
+          <option value="Andaman and Nicobar Islands"></option>
+          <option value="Chandigarh"></option>
+          <option value="Dadra and Nagar Haveli and Daman and Diu"></option>
+          <option value="Delhi (NCT)"></option>
+          <option value="Jammu and Kashmir"></option>
+          <option value="Ladakh"></option>
+          <option value="Lakshadweep"></option>
+          <option value="Puducherry"></option>
+          </datalist>
+          <div class="error-text">Please choose your state or union territory from the list.</div>
+        </div>
+
+        <button type="submit" id="submitBtn">Continue</button>
+      </form>
+
+      <p class="switch">Already have an account? <a href="login.html">Sign in</a></p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('form');
+    const fullName = document.getElementById('fullName');
+    const contact = document.getElementById('contact');
+    const password = document.getElementById('password');
+    const state = document.getElementById('state');
+    const toggle = document.getElementById('toggle');
+    const submitBtn = document.getElementById('submitBtn');
+    const fields = {
+      name: document.getElementById('nameField'),
+      contact: document.getElementById('contactField'),
+      password: document.getElementById('passwordField'),
+      state: document.getElementById('stateField')
+    };
+
+    const validStates = Array.from(document.querySelectorAll('#stateList option')).map(o => o.value);
+
+    toggle.addEventListener('click', () => {
+      const hidden = password.type === 'password';
+      password.type = hidden ? 'text' : 'password';
+      toggle.textContent = hidden ? 'Hide' : 'Show';
+      toggle.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+    });
+
+    [[fullName, 'name'], [contact, 'contact'], [password, 'password'], [state, 'state']].forEach(([el, key]) => {
+      el.addEventListener('input', () => fields[key].classList.remove('error'));
+    });
+
+    // Restore saved data (e.g. coming back from Step 2) or prefill contact
+    try {
+      const saved = sessionStorage.getItem('bodhsetu_step1_data');
+      if (saved) {
+        const d = JSON.parse(saved);
+        if (d.fullName) fullName.value = d.fullName;
+        if (d.contact) contact.value = d.contact;
+        if (d.password) password.value = d.password;
+        if (d.state) state.value = d.state;
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const initial = params.get('contact') || localStorage.getItem('bodhsetu_login_contact') || '';
+        if (initial.trim()) contact.value = initial.trim();
+      }
+    } catch (err) {
+      console.warn('Could not read saved registration data', err);
+    }
+
+    function isValidContact(val) {
+      const clean = val.trim();
+      if (!clean) return false;
+      const digits = clean.replace(/[\s\-\+]/g, '');
+      const isPhone = /^\d{10}$/.test(digits) || /^91\d{10}$/.test(digits);
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) || isPhone;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nameVal = fullName.value.trim();
+      const contactVal = contact.value.trim();
+      const passwordVal = password.value;
+      const stateVal = state.value.trim();
+
+      const checks = [
+        ['name', nameVal.length >= 2, fullName],
+        ['contact', isValidContact(contactVal), contact],
+        ['password', passwordVal.length >= 6, password],
+        ['state', validStates.includes(stateVal), state]
+      ];
+
+      let firstBad = null;
+      checks.forEach(([key, ok, el]) => {
+        fields[key].classList.toggle('error', !ok);
+        if (!ok && !firstBad) firstBad = el;
+      });
+      if (firstBad) { firstBad.focus(); return; }
+
+      try {
+        sessionStorage.setItem('bodhsetu_step1_data', JSON.stringify({
+          fullName: nameVal, contact: contactVal, password: passwordVal, state: stateVal
+        }));
+        sessionStorage.setItem('bodhsetu_login_contact', contactVal);
+      } catch (err) {
+        console.warn('sessionStorage write error', err);
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Proceeding...';
+      window.location.href = 'complete-profile.html';
+    });
+  </script>
+</body>
+</html>
