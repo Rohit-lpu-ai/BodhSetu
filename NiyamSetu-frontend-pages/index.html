@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Public services, made understandable</title>
+  <meta name="description" content="Understand government schemes, check your eligibility and take your next step with confidence.">
+
+  <style>
+    :root {
+      --ink: #14211c;
+      --muted: #5b6862;
+      --line: #dcdfd9;
+      --paper: #f7f6f1;
+      --accent: #1f5a45;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    .top {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.95rem;
+    }
+    .top a { color: var(--ink); font-weight: 600; text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+    .top select {
+      font: inherit;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 24px 72px;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      line-height: 1.1;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+
+    .lead { color: var(--muted); font-size: 1.1rem; max-width: 34em; margin-bottom: 32px; }
+
+    form { max-width: 440px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; }
+
+    .row { display: flex; gap: 10px; }
+    input {
+      flex: 1;
+      min-width: 0;
+      height: 50px;
+      padding: 0 14px;
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+
+    button {
+      height: 50px;
+      padding: 0 22px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #17473a; }
+    button:disabled { opacity: 0.6; cursor: default; }
+
+    .message { min-height: 22px; margin-top: 8px; font-size: 0.9rem; font-weight: 600; }
+    .hint { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+    .steps {
+      list-style: none;
+      border-left: 2px solid var(--line);
+      padding-left: 28px;
+      display: grid;
+      gap: 28px;
+    }
+    .steps li { position: relative; }
+    .steps li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: -46px;
+      top: -2px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--paper);
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .steps h3 { font-size: 1.1rem; margin-bottom: 2px; }
+    .steps p { color: var(--muted); font-size: 0.95rem; }
+
+    footer {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px 32px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 800px) {
+      .wrap { grid-template-columns: 1fr; gap: 48px; padding-top: 16px; }
+    }
+    @media (max-width: 480px) {
+      .row { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <select id="lang" aria-label="Select language">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+    </select>
+    <a href="login.html" id="signInLink">Sign In</a>
+  </div>
+
+  <main class="wrap">
+    <section>
+      <p class="eyebrow" id="eyebrow">नियम से बोध तक।</p>
+      <h1 id="title">From government words to <em>people’s worlds.</em></h1>
+      <p class="lead" id="lead">Understand schemes, find the support you’re eligible for, and take your next step with confidence.</p>
+
+      <form id="form" novalidate>
+        <label for="contact" id="formLabel">Get started</label>
+        <div class="row">
+          <input type="text" id="contact" placeholder="Email or mobile number" autocomplete="username">
+          <button type="submit" id="submitBtn">Continue</button>
+        </div>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+        <p class="hint" id="hint">We’ll check if you already have an account.</p>
+      </form>
+    </section>
+
+    <section aria-label="How it works">
+      <ol class="steps">
+        <li data-n="1">
+          <h3 id="s1t">Understand</h3>
+          <p id="s1p">Schemes explained in plain language, free of jargon.</p>
+        </li>
+        <li data-n="2">
+          <h3 id="s2t">Check eligibility</h3>
+          <p id="s2p">Answer a few simple questions to see what you qualify for.</p>
+        </li>
+        <li data-n="3">
+          <h3 id="s3t">Apply with confidence</h3>
+          <p id="s3p">Know which documents you need and what to do next.</p>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer id="footer">BodhSetu (बोधसेतु) means “bridge of understanding”.</footer>
+
+  <script>
+    const form = document.getElementById('form');
+    const contact = document.getElementById('contact');
+    const message = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const text = {
+      en: {
+        eyebrow: 'नियम से बोध तक।',
+        title: 'From government words to <em>people’s worlds.</em>',
+        lead: 'Understand schemes, find the support you’re eligible for, and take your next step with confidence.',
+        formLabel: 'Get started', placeholder: 'Email or mobile number', btn: 'Continue',
+        hint: 'We’ll check if you already have an account.', signIn: 'Sign In',
+        s1t: 'Understand', s1p: 'Schemes explained in plain language, free of jargon.',
+        s2t: 'Check eligibility', s2p: 'Answer a few simple questions to see what you qualify for.',
+        s3t: 'Apply with confidence', s3p: 'Know which documents you need and what to do next.',
+        footer: 'BodhSetu (बोधसेतु) means “bridge of understanding”.'
+      },
+      hi: {
+        eyebrow: 'नियम से बोध तक।',
+        title: 'सरकारी शब्दों से <em>जन-जन की दुनिया तक।</em>',
+        lead: 'योजनाओं को आसानी से समझें, अपनी पात्रता जानें, और पूरे विश्वास के साथ अपना अगला कदम उठाएं।',
+        formLabel: 'शुरुआत करें', placeholder: 'ईमेल या मोबाइल नंबर', btn: 'आगे बढ़ें',
+        hint: 'हम देखेंगे कि आपका खाता पहले से है या नहीं।', signIn: 'साइन इन',
+        s1t: 'समझें', s1p: 'योजनाएं सरल भाषा में, बिना कठिन शब्दों के।',
+        s2t: 'पात्रता जांचें', s2p: 'कुछ सरल सवालों के जवाब दें और जानें आप किसके पात्र हैं।',
+        s3t: 'विश्वास से आवेदन करें', s3p: 'जानें कौन-से दस्तावेज़ चाहिए और आगे क्या करना है।',
+        footer: 'बोधसेतु का अर्थ है “समझ का सेतु”।'
+      }
+    };
+
+    document.getElementById('lang').addEventListener('change', (e) => {
+      const t = text[e.target.value];
+      const set = (id, v) => document.getElementById(id).textContent = v;
+      set('eyebrow', t.eyebrow); set('lead', t.lead); set('formLabel', t.formLabel);
+      set('hint', t.hint); set('signInLink', t.signIn); set('footer', t.footer);
+      set('s1t', t.s1t); set('s1p', t.s1p); set('s2t', t.s2t);
+      set('s2p', t.s2p); set('s3t', t.s3t); set('s3p', t.s3p);
+      document.getElementById('title').innerHTML = t.title;
+      contact.placeholder = t.placeholder;
+      submitBtn.textContent = t.btn;
+    });
+
+    document.getElementById('signInLink').addEventListener('click', (e) => {
+      const val = contact.value.trim();
+      if (val) {
+        e.preventDefault();
+        localStorage.setItem('bodhsetu_login_contact', val);
+        window.location.href = 'login.html?contact=' + encodeURIComponent(val);
+      }
+    });
+
+    function validate(input) {
+      const cleaned = input.trim();
+      if (!cleaned) return { valid: false, message: 'Please enter your email address or mobile number.' };
+
+      const digits = cleaned.replace(/[\s\-\+]/g, '');
+      if (/^\d+$/.test(digits)) {
+        if (digits.length < 10) return { valid: false, message: 'Please enter a valid 10-digit mobile number.' };
+        const core = digits.slice(-10);
+        return { valid: true, type: 'mobile', formatted: core, candidates: [core, '+91' + core, '91' + core, '0' + core] };
+      }
+
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleaned)) {
+        const email = cleaned.toLowerCase();
+        return { valid: true, type: 'email', formatted: email, candidates: [email] };
+      }
+
+      return { valid: false, message: 'Please enter a valid email address or 10-digit mobile number.' };
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const raw = contact.value.trim();
+      const result = validate(raw);
+
+      if (!result.valid) {
+        message.textContent = result.message;
+        contact.focus();
+        return;
+      }
+
+      message.textContent = '';
+      localStorage.setItem('bodhsetu_login_contact', result.formatted);
+      submitBtn.disabled = true;
+
+      // Method A: local Flask backend
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/check-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contact: raw })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const page = data.exists ? 'login.html' : 'register.html';
+          window.location.href = page + '?contact=' + encodeURIComponent(data.contact || result.formatted);
+          return;
+        }
+      } catch (err) {
+        // fall back to Supabase
+      }
+
+      // Method B: Supabase
+      try {
+        const base = 'https://ipxqutjnwyilfbletkir.supabase.co/rest/v1/user_database';
+        const key = 'sb_publishable_F2RHMXsrlRD3OYjfHt-YfQ_0x6Sf9O8';
+
+        const url = result.type === 'email'
+          ? base + '?contact=eq.' + encodeURIComponent(result.formatted) + '&select=contact'
+          : base + '?or=(' + result.candidates.map(c => 'contact.eq.' + c).join(',') + ')&select=contact';
+
+        const resp = await fetch(url, { headers: { apikey: key, Authorization: 'Bearer ' + key } });
+        if (resp.ok) {
+          const records = await resp.json();
+          if (Array.isArray(records) && records.length > 0) {
+            window.location.href = 'login.html?contact=' + encodeURIComponent(records[0].contact || result.formatted);
+          } else {
+            window.location.href = 'register.html?contact=' + encodeURIComponent(result.formatted);
+          }
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase query failed:', err);
+      }
+
+      submitBtn.disabled = false;
+      message.textContent = 'Connection error. Please try again.';
+    });
+  </script>
+</body>
+</html>

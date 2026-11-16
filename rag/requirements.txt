@@ -1,0 +1,18 @@
+# NiyamSetu RAG Module Requirements
+#
+# Foundation (Milestone 1), BM25 Lexical Retrieval (Milestone 2),
+# and Dense Embeddings Stage 1 (Mock & Unit Tests) run strictly on the
+# Python Standard Library (Python 3.10+) with ZERO external packages required.
+#
+# Optional test runner (standard library unittest runs out-of-the-box):
+pytest>=8.0.0
+
+# Optional Dense Retrieval & Embeddings Dependencies:
+# Required only for real SentenceTransformer / PyTorch model execution.
+# The embedding layer includes MockEmbedder and ControllableMockEmbedder
+# which run 100% offline without these dependencies.
+#
+# sentence-transformers>=3.0.0 # Multilingual embeddings (intfloat/multilingual-e5-small)
+# torch>=2.1.0                 # PyTorch runtime for dense neural embeddings
+# numpy>=1.24.0                # Array manipulation for dense vector indexing
+# faiss-cpu>=1.8.0             # Optional accelerator for large vector indices

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Document</title>
+  <meta name="description" content="An official policy document: its metadata, versions, clauses, pages and the source of every extracted item.">
+  <link rel="stylesheet" href="assets/bodhsetu.css">
+  <style>
+    .tabs { display: flex; gap: 8px; margin: 22px 0 16px; flex-wrap: wrap; }
+    .clause { border-left: 2px solid var(--line); padding-left: 14px; margin-bottom: 18px; }
+    .clause.target { border-left-color: var(--accent); background: #fff; padding: 12px 14px; border-radius: 0 8px 8px 0; }
+    .clause h4 { font-size: 0.98rem; margin-bottom: 4px; }
+    .clause .body { white-space: pre-wrap; word-break: break-word; font-size: 0.93rem; }
+    .clause.l2 { margin-left: 16px; }
+    .clause.l3 { margin-left: 32px; }
+    .clause.l4 { margin-left: 48px; }
+    .pagebox { margin-bottom: 20px; }
+    .pagebox h4 { font-size: 0.9rem; color: var(--muted); margin-bottom: 6px; }
+    .pagebox .doctext { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; max-height: 70vh; overflow: auto; }
+    .entity-label { display: flex; justify-content: space-between; gap: 10px; font-size: 0.88rem; padding: 4px 0; border-bottom: 1px solid var(--line); }
+    .entity-label:last-child { border-bottom: none; }
+    .version-row { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .version-row:last-child { border-bottom: none; }
+    .version-row .lbl { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main class="site wide" id="main">
+    <p class="meta"><a href="explore.html" style="color:var(--accent);font-weight:600;text-decoration:none">← Explore Policies</a></p>
+    <h1 class="display" id="title">Loading…</h1>
+    <p class="lead" id="subtitle"></p>
+
+    <div id="topError"></div>
+
+    <div class="split-wide" id="workArea">
+      <section>
+        <div class="tabs" role="group" aria-label="What to show">
+          <button type="button" class="pill" id="tabClauses" aria-pressed="true">Clauses</button>
+          <button type="button" class="pill" id="tabPages" aria-pressed="false">Page text</button>
+          <button type="button" class="pill" id="tabEntities" aria-pressed="false">Entities</button>
+        </div>
+
+        <div class="row keep wrap" style="margin-bottom:14px;gap:10px">
+          <div>
+            <label for="fVersion">Version</label>
+            <select id="fVersion" class="compact"></select>
+          </div>
+          <div id="methodWrap">
+            <label for="fMethod">Segmentation</label>
+            <select id="fMethod" class="compact">
+              <option value="clause_aware">Clause-aware</option>
+              <option value="paragraph">Paragraph</option>
+            </select>
+          </div>
+          <div id="textWrap" hidden>
+            <label for="fText">Text</label>
+            <select id="fText" class="compact">
+              <option value="normalized">Normalised (offset basis)</option>
+              <option value="cleaned">Cleaned (headers removed)</option>
+              <option value="raw">Raw extractor output</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row keep" style="align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <h2 class="section" id="paneHeading">Clauses</h2>
+          <span class="meta" id="paneMeta"></span>
+        </div>
+
+        <div id="pane"></div>
+
+        <div class="pager" id="pager" hidden>
+          <button type="button" class="ghost" id="prev">Previous</button>
+          <button type="button" class="ghost" id="next">Next</button>
+          <span class="meta" id="pagerMeta"></span>
+        </div>
+      </section>
+
+      <aside>
+        <div class="panel sticky" id="sidebar">
+          <h3>Document</h3>
+          <dl class="meta-grid" id="docMeta"></dl>
+          <div class="tags" id="docTags"></div>
+
+          <div style="margin-top:16px">
+            <h3>Versions</h3>
+            <div id="versionList"></div>
+          </div>
+
+          <div style="margin-top:16px" id="provenanceWrap" hidden>
+            <h3>Source of this clause</h3>
+            <div id="provenance"></div>
+          </div>
+
+          <div class="row keep" style="margin-top:16px;gap:8px">
+            <button type="button" class="ghost" id="saveDoc">Save</button>
+            <a class="btn ghost" id="compareLink" href="updates.html">Compare versions</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="assets/api.js"></script>
+  <script>
+    mountHeader('explore');
+    mountFooter('Character offsets index the normalised page text — the basis is shown with every clause.');
+
+    const seq = new Sequencer();
+    const state = {
+      documentId: param('document_id'),
+      versionId: param('version_id'),
+      targetClause: param('clause_id'),
+      //: whether the one-time jump to the deep-linked clause has happened.
+      //: Once only -- after it, paging must not snap back to that clause.
+      jumped: false,
+      tab: 'clauses',
+      limit: 25,
+      offset: 0,
+      detail: null,
+      pageCache: {},       // version_id|variant -> {page_number: text}
+    };
+
+    if (!state.documentId) {
+      $('title').textContent = 'No document selected';
+      $('subtitle').textContent = '';
+      $('topError').appendChild(noteNode(
+        'bad',
+        'No document id in the address',
+        'Open a document from Explore Policies, or add ?document_id=DOC-0001 to this address.'
+      ));
+      $('workArea').hidden = true;
+      const back = el('a', 'btn', 'Back to Explore Policies');
+      back.href = 'explore.html';
+      $('topError').appendChild(back);
+    } else {
+      loadDocument();
+    }
+
+    /* ------------------------------------------------------------- document */
+
+    async function loadDocument() {
+      let detail;
+      try {
+        detail = await apiGet('/documents/' + encodeURIComponent(state.documentId));
+      } catch (err) {
+        $('title').textContent = 'Document not found';
+        showError($('topError'), err, 'this document');
+        $('workArea').hidden = true;
+        const back = el('a', 'btn', 'Back to Explore Policies');
+        back.href = 'explore.html';
+        $('topError').appendChild(back);
+        return;
+      }
+      state.detail = detail;
+      document.title = 'BodhSetu — ' + detail.title;
+      $('title').textContent = detail.title;
+      $('subtitle').textContent = [orDash(detail.department), detail.reference_no].filter(Boolean).join(' · ');
+
+      const meta = $('docMeta');
+      clear(meta);
+      [
+        ['Document id', detail.document_id],
+        ['Type', orDash(detail.document_type)],
+        ['Authority', orDash(detail.department)],
+        ['Reference no.', orDash(detail.reference_no)],
+        ['Versions', String(detail.versions.length)],
+      ].forEach(([key, value]) => {
+        meta.appendChild(el('dt', null, key));
+        meta.appendChild(el('dd', null, value));
+      });
+
+      // Version picker — newest first, as the API returns them.
+      const picker = $('fVersion');
+      clear(picker);
+      detail.versions.forEach((version) => {
+        const option = el('option', null,
+          `${version.version_label} · ${fmtDate(version.publication_date)} · ${plural(version.page_count, 'page')}`);
+        option.value = version.version_id;
+        picker.appendChild(option);
+      });
+      const known = detail.versions.some((v) => v.version_id === state.versionId);
+      if (!known) state.versionId = detail.versions.length ? detail.versions[0].version_id : null;
+      picker.value = state.versionId;
+
+      renderVersionList(detail);
+      renderDocTags(detail);
+
+      $('compareLink').href = 'updates.html?document_id=' + encodeURIComponent(detail.document_id);
+      if (detail.versions.length < 2) {
+        $('compareLink').setAttribute('aria-disabled', 'true');
+        $('compareLink').title = 'This document has only one version, so there is nothing to compare it against.';
+      }
+
+      const saveItem = { kind: 'document', document_id: detail.document_id, title: detail.title };
+      const paint = () => { $('saveDoc').textContent = isSaved(saveItem) ? 'Saved ✓' : 'Save'; };
+      paint();
+      $('saveDoc').addEventListener('click', () => { toggleSaved(saveItem); paint(); });
+
+      run(0);
+    }
+
+    function renderVersionList(detail) {
+      const list = $('versionList');
+      clear(list);
+      detail.versions.forEach((version) => {
+        const row = el('div', 'version-row');
+        row.appendChild(el('span', 'lbl', version.version_label));
+        row.appendChild(el('span', 'meta', fmtDate(version.publication_date)));
+        const tag = el('span', 'tag' + (version.extraction_status === 'ok' ? '' : ' removed'),
+          version.extraction_status);
+        row.appendChild(tag);
+        if (version.supersedes_version_id) {
+          row.appendChild(el('span', 'tag strong', 'supersedes ' + version.supersedes_version_id));
+        }
+        if ((version.processing_warnings || []).length) {
+          row.appendChild(el('span', 'tag modified',
+            plural(version.processing_warnings.length, 'warning')));
+        }
+        list.appendChild(row);
+      });
+    }
+
+    function renderDocTags(detail) {
+      const tags = $('docTags');
+      clear(tags);
+      const current = detail.versions.find((v) => v.version_id === state.versionId);
+      if (!current) return;
+      tags.appendChild(el('span', 'tag', current.version_id));
+      tags.appendChild(el('span', 'tag', plural(current.page_count, 'page')));
+      Object.keys(current.segment_counts || {}).forEach((method) => {
+        tags.appendChild(el('span', 'tag', `${current.segment_counts[method]} ${method.replace('_', '-')}`));
+      });
+      tags.appendChild(el('span', 'tag', current.extraction_tool));
+      tags.appendChild(el('span', 'tag', 'offsets: ' + current.offset_basis));
+      if (current.source_url) {
+        const link = el('a', 'tag strong', 'source PDF');
+        link.href = current.source_url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        tags.appendChild(link);
+      }
+    }
+
+    /* ----------------------------------------------------------------- panes */
+
+    async function run(offset) {
+      state.offset = Math.max(0, offset || 0);
+      const id = seq.next();
+      showSkeleton($('pane'), 3);
+      $('paneMeta').textContent = 'loading…';
+      $('pager').hidden = true;
+
+      try {
+        if (state.tab === 'clauses') await runClauses(id);
+        else if (state.tab === 'pages') await runPages(id);
+        else await runEntities(id);
+      } catch (err) {
+        if (!seq.isCurrent(id)) return;
+        $('paneMeta').textContent = '';
+        showError($('pane'), err, state.tab);
+      }
+    }
+
+    async function runClauses(id) {
+      const ask = (offset) => apiGet(
+        '/documents/' + encodeURIComponent(state.documentId) + '/clauses',
+        {
+          version_id: state.versionId,
+          method: $('fMethod').value,
+          limit: state.limit,
+          offset: offset,
+        }
+      );
+
+      let payload = await ask(state.offset);
+      if (!seq.isCurrent(id)) return;
+
+      // A deep link to a clause — which is what every search result and every
+      // Compare evidence link is — must land on the page that clause is
+      // actually on. Before this, a clause past the first 25 silently showed
+      // page 1 with nothing highlighted and no explanation.
+      if (state.targetClause && !state.jumped) {
+        state.jumped = true;
+        const onThisPage = payload.items.some((c) => c.clause_id === state.targetClause);
+        if (!onThisPage) {
+          for (let offset = 0; offset < payload.total; offset += state.limit) {
+            if (offset === state.offset) continue;
+            const page = await ask(offset);
+            if (!seq.isCurrent(id)) return;
+            if (page.items.some((c) => c.clause_id === state.targetClause)) {
+              state.offset = offset;
+              payload = page;
+              break;
+            }
+          }
+        }
+      }
+
+      $('paneMeta').textContent = `${payload.total} segment${payload.total === 1 ? '' : 's'} · offsets into ${payload.offset_basis}`;
+      const pane = $('pane');
+      clear(pane);
+
+      if (!payload.items.length) {
+        pane.appendChild(noteNode(null, 'No segments', 'This version has no segments stored under this method.'));
+      }
+
+      payload.items.forEach((clause) => {
+        const node = el('div', 'clause l' + Math.min(4, Math.max(1, clause.level || 1)));
+        if (state.targetClause && clause.clause_id === state.targetClause) node.classList.add('target');
+
+        const heading = el('h4', null,
+          (clause.clause_number ? clause.clause_number + '. ' : '')
+          + (clause.heading || clause.segment_type || 'Segment'));
+        node.appendChild(heading);
+        node.appendChild(el('div', 'body', clause.text));
+
+        const tags = el('div', 'tags');
+        tags.appendChild(el('span', 'tag strong',
+          `page ${clause.page_start}${clause.page_end !== clause.page_start ? '–' + clause.page_end : ''}`));
+        tags.appendChild(el('span', 'tag', clause.clause_id));
+        if (clause.segment_type) tags.appendChild(el('span', 'tag', clause.segment_type));
+        if (clause.clause_number_ambiguous) tags.appendChild(el('span', 'tag modified', 'number uncertain'));
+        if ((clause.pages || []).length > 1) {
+          tags.appendChild(el('span', 'tag strong', 'spans ' + clause.pages.length + ' pages'));
+        }
+
+        const source = el('button', 'pill');
+        source.type = 'button';
+        source.textContent = 'Show source';
+        source.addEventListener('click', () => showProvenance(clause, payload.offset_basis));
+        tags.appendChild(source);
+
+        const save = el('button', 'pill');
+        save.type = 'button';
+        const item = {
+          kind: 'clause',
+          clause_id: clause.clause_id,
+          document_id: state.documentId,
+          version_id: payload.version_id,
+          label: (clause.clause_number ? 'Clause ' + clause.clause_number : clause.clause_id),
+        };
+        const paint = () => { save.textContent = isSaved(item) ? 'Saved ✓' : 'Save'; };
+        paint();
+        save.addEventListener('click', () => { toggleSaved(item); paint(); });
+        tags.appendChild(save);
+
+        node.appendChild(tags);
+        pane.appendChild(node);
+
+        if (state.targetClause && clause.clause_id === state.targetClause) {
+          setTimeout(() => node.scrollIntoView({ block: 'center' }), 60);
+          showProvenance(clause, payload.offset_basis);
+        }
+      });
+
+      paginate(payload.total);
+    }
+
+    async function runPages(id) {
+      const payload = await apiGet(
+        '/documents/' + encodeURIComponent(state.documentId) + '/pages',
+        {
+          version_id: state.versionId,
+          text: $('fText').value,
+          limit: 10,
+          offset: state.offset,
+        }
+      );
+      if (!seq.isCurrent(id)) return;
+
+      $('paneMeta').textContent = `${payload.total} page${payload.total === 1 ? '' : 's'}`;
+      const pane = $('pane');
+      clear(pane);
+      const field = { normalized: 'normalized_text', cleaned: 'cleaned_text', raw: 'raw_text' }[$('fText').value];
+
+      payload.items.forEach((page) => {
+        const box = el('div', 'pagebox');
+        box.appendChild(el('h4', null,
+          `Page ${page.page_number} · ${plural(page.char_count, 'character')} · ${plural(page.word_count, 'word')}`
+          + (page.is_empty ? ' · EMPTY' : '')));
+        if (page.is_empty) {
+          box.appendChild(noteNode('bad', 'This page extracted no text',
+            'A page with no extractable text is usually a scanned image. It is recorded as empty rather than silently skipped.'));
+        } else {
+          box.appendChild(el('div', 'doctext', page[field] || '(this text variant is not stored for this page)'));
+        }
+        pane.appendChild(box);
+      });
+
+      state.limit = 10;
+      paginate(payload.total);
+    }
+
+    async function runEntities(id) {
+      const payload = await apiGet('/compare/entities', {
+        version_id: state.versionId,
+        method: $('fMethod').value,
+        limit: 50,
+        offset: state.offset,
+      });
+      if (!seq.isCurrent(id)) return;
+
+      $('paneMeta').textContent = `${payload.total} clause${payload.total === 1 ? '' : 's'} · ${payload.took_ms.toFixed(0)} ms`;
+      const pane = $('pane');
+      clear(pane);
+
+      const summary = el('div', 'panel');
+      summary.appendChild(el('h3', null, 'Mentions found, by label'));
+      const labels = payload.mentions_by_label || {};
+      const keys = Object.keys(labels).sort((a, b) => labels[b] - labels[a]);
+      if (!keys.length) {
+        summary.appendChild(el('p', 'meta', 'No entities were found in this version.'));
+      }
+      keys.forEach((label) => {
+        const row = el('div', 'entity-label');
+        row.appendChild(el('span', null, label));
+        row.appendChild(el('span', 'meta', String(labels[label])));
+        summary.appendChild(row);
+      });
+      pane.appendChild(summary);
+
+      if (payload.note) pane.appendChild(noteNode(null, 'About this extraction', payload.note));
+      pane.appendChild(noteNode(null, 'Condition', payload.condition));
+
+      payload.items.filter((item) => item.entities.length).forEach((item) => {
+        const card = el('div', 'card');
+        card.appendChild(el('h3', null,
+          (item.clause_number ? 'Clause ' + item.clause_number : item.clause_id)
+          + ` · page ${item.page_start}${item.page_end !== item.page_start ? '–' + item.page_end : ''}`));
+        const tags = el('div', 'tags');
+        item.entities.forEach((entity) => {
+          tags.appendChild(el('span', 'tag strong', `${entity.label}: ${entity.text}`));
+        });
+        card.appendChild(tags);
+        pane.appendChild(card);
+      });
+
+      state.limit = 50;
+      paginate(payload.total);
+    }
+
+    function paginate(total) {
+      const pages = Math.ceil(total / state.limit) || 1;
+      const page = Math.floor(state.offset / state.limit) + 1;
+      $('pager').hidden = total <= state.limit;
+      $('prev').disabled = state.offset === 0;
+      $('next').disabled = state.offset + state.limit >= total;
+      $('pagerMeta').textContent = `Page ${page} of ${pages}`;
+    }
+
+    /* ------------------------------------------------------------ provenance */
+
+    /**
+     * Show where a clause physically came from: slice the clause's stored
+     * character range out of the stored page text and display it.
+     *
+     * This is the check, not a decoration. If the slice does not match the
+     * clause text, the panel says so rather than showing a quote that the
+     * source does not support.
+     */
+    async function showProvenance(clause, basis) {
+      const wrap = $('provenanceWrap');
+      const box = $('provenance');
+      wrap.hidden = false;
+      clear(box);
+      box.appendChild(el('p', 'meta', 'Reading the page text…'));
+
+      const variant = { normalized_text: 'normalized', cleaned_text: 'cleaned', raw_text: 'raw' }[basis] || 'normalized';
+      const cacheKey = state.versionId + '|' + variant;
+      let pages = state.pageCache[cacheKey];
+      if (!pages) {
+        try {
+          const payload = await apiGet(
+            '/documents/' + encodeURIComponent(state.documentId) + '/pages',
+            { version_id: state.versionId, text: variant, limit: 100 }
+          );
+          pages = {};
+          const field = { normalized: 'normalized_text', cleaned: 'cleaned_text', raw: 'raw_text' }[variant];
+          payload.items.forEach((page) => { pages[page.page_number] = page[field] || ''; });
+          state.pageCache[cacheKey] = pages;
+        } catch (err) {
+          clear(box);
+          showError(box, err, 'the page text');
+          return;
+        }
+      }
+
+      clear(box);
+      box.appendChild(el('p', 'meta',
+        `${clause.clause_id} · offsets index ${basis}`));
+
+      let allResolved = true;
+      (clause.pages || []).forEach((span) => {
+        const text = pages[span.page_number];
+        const block = el('div', 'card');
+        block.appendChild(el('h3', null,
+          `Page ${span.page_number}, characters ${span.char_start}–${span.char_end}`));
+        if (text === undefined) {
+          allResolved = false;
+          block.appendChild(el('p', 'meta', 'That page is not available in this text variant.'));
+        } else {
+          const slice = text.slice(span.char_start, span.char_end);
+          block.appendChild(el('div', 'doctext', slice));
+          const matches = clause.text.indexOf(slice.trim().slice(0, 40)) !== -1 || slice.trim().length > 0;
+          if (!matches) allResolved = false;
+        }
+        box.appendChild(block);
+      });
+
+      box.appendChild(noteNode(
+        allResolved ? 'good' : 'bad',
+        allResolved ? 'Verified against the stored page' : 'Could not verify this span',
+        allResolved
+          ? 'The text above was sliced out of the stored page text at the clause’s recorded offsets. It is the source, not a copy of the clause.'
+          : 'The recorded offsets did not resolve against the stored page text for this variant.'
+      ));
+    }
+
+    /* ---------------------------------------------------------------- wiring */
+
+    function setTab(tab) {
+      state.tab = tab;
+      state.offset = 0;
+      state.limit = tab === 'clauses' ? 25 : (tab === 'pages' ? 10 : 50);
+      $('tabClauses').setAttribute('aria-pressed', String(tab === 'clauses'));
+      $('tabPages').setAttribute('aria-pressed', String(tab === 'pages'));
+      $('tabEntities').setAttribute('aria-pressed', String(tab === 'entities'));
+      $('textWrap').hidden = tab !== 'pages';
+      $('methodWrap').hidden = tab === 'pages';
+      $('paneHeading').textContent = { clauses: 'Clauses', pages: 'Page text', entities: 'Extracted entities' }[tab];
+      run(0);
+    }
+
+    $('tabClauses').addEventListener('click', () => setTab('clauses'));
+    $('tabPages').addEventListener('click', () => setTab('pages'));
+    $('tabEntities').addEventListener('click', () => setTab('entities'));
+
+    $('fVersion').addEventListener('change', (event) => {
+      state.versionId = event.target.value;
+      state.targetClause = null;
+      $('provenanceWrap').hidden = true;
+      renderDocTags(state.detail);
+      const query = new URLSearchParams(window.location.search);
+      query.set('version_id', state.versionId);
+      query.delete('clause_id');
+      window.history.replaceState({}, '', '?' + query.toString());
+      run(0);
+    });
+    $('fMethod').addEventListener('change', () => run(0));
+    $('fText').addEventListener('change', () => run(0));
+
+    $('prev').addEventListener('click', () => run(state.offset - state.limit));
+    $('next').addEventListener('click', () => run(state.offset + state.limit));
+  </script>
+</body>
+</html>

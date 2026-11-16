@@ -354,6 +354,17 @@ def _insert_version(
     document = bundle.document
     source = document.get("source_metadata") or {}
     filename = str(document["filename"])
+    # Two different names, for two different jobs.
+    #
+    # `original_filename` is provenance: what the file was called where it
+    # came from. `stored_path` has to point at the file that is actually on
+    # disk, which for an API upload is written under a generated name --
+    # §20 forbids a client-supplied name reaching a filesystem path, and a
+    # fixed staging name made every upload claim the same stored_path.
+    #
+    # The CLI path supplies no `stored_filename` and keeps the old behaviour
+    # exactly, so the four corpus documents are unaffected.
+    stored_filename = str(document.get("stored_filename") or filename)
 
     row = conn.execute(
         text(
@@ -380,7 +391,7 @@ def _insert_version(
             "source_url": source.get("source_url"),
             "retrieved_at": source.get("retrieved_at"),
             "original_filename": filename,
-            "stored_path": str(raw_dir / filename),
+            "stored_path": str(raw_dir / stored_filename),
             "file_checksum": str(document["checksum"]),
             "file_size_bytes": int(document["file_size_bytes"]),
             "page_count": int(document["page_count"]),

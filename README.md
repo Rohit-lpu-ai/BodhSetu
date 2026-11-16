@@ -225,14 +225,53 @@ and decide exactly what we're going to build for the first version.
 
 ---
 
+# Running NiyamSetu
+
+## Start it — one click
+
+```bat
+start.bat
+```
+
+That is the whole thing. One FastAPI process on **one port** serves both the
+API and the **BodhSetu frontend**, so there is nothing else to launch and no
+CORS to configure. The script checks the virtualenv, `.env`, PostgreSQL, the
+schema migrations and the port before starting, and each failure names its own
+cause. `start.bat 8080` uses a different port.
+
+| | |
+|---|---|
+| **BodhSetu** | http://127.0.0.1:8000/ |
+| Explore policies | http://127.0.0.1:8000/explore.html |
+| What changed (Compare) | http://127.0.0.1:8000/updates.html |
+| Add a document | http://127.0.0.1:8000/add-document.html |
+| API documentation | http://127.0.0.1:8000/docs |
+
+The application starts against **`niyamsetu_app`**, a database that begins
+empty: upload your own official policy PDFs through *Add Document* and they
+appear in the Library immediately. Giving a second issue the **same document
+group** makes the pair comparable in *What changed*.
+
+The three development corpora are untouched and one line of `.env` away —
+see `backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md` §9.
+
+**Status 2026-11-16: the frontend is integrated.** Library, Search, Document
+View, Compare and ingestion all run on real backend data. **Ask / RAG is
+deferred** — that page keeps its design, says so, and shows real keyword
+matches rather than an invented answer. Full detail, including the seven
+defects a browser session found and the data cleanup:
+[`backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md`](backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md).
+
+---
+
 # Backend — running it
 
 > The sections above describe the **product idea**. This section is the
 > **backend as actually built** (Person 1: Backend + Document NLP).
 >
-> Status 2026-11-14: ingestion, PostgreSQL persistence, the FastAPI layer,
-> **Library & Search** and **Compare** are implemented and verified —
-> **1,075 tests passing, 1 skipped, 0 failed** (196 need PostgreSQL).
+> Status 2026-11-16: ingestion, PostgreSQL persistence, the FastAPI layer,
+> **Library & Search**, **Compare** and the **integrated frontend** are
+> implemented and verified — **1,104 tests passing, 1 skipped, 0 failed**.
 >
 > Search is PostgreSQL full-text over the stored `tsvector`, measured against a
 > substring baseline:
@@ -323,9 +362,14 @@ Expected on the current corpus: 4 documents, 4 versions, 57 pages, 501 segments
 
 ## 7. Run the API
 
+`start.bat` does this with its pre-flight checks. The manual equivalent:
+
 ```bat
 .venv\Scripts\python -m uvicorn backend.app.api.main:app --reload
 ```
+
+This serves the frontend at `/` as well. `NIYAMSETU_SERVE_FRONTEND=0` gives an
+API-only server.
 
 | | |
 |---|---|

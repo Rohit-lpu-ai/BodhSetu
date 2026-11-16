@@ -53,6 +53,12 @@ class Settings:
     processed_dir: Path = REPO_ROOT / "data" / "processed"
     raw_dir: Path = REPO_ROOT / "data" / "raw"
     docs_enabled: bool = True
+    #: Serve ``frontend/`` at ``/`` from this same application. On by default:
+    #: the integrated product is one process on one port. Switch it off with
+    #: NIYAMSETU_SERVE_FRONTEND=0 to run an API-only server -- which is what
+    #: the mocked API tests want, since they assert on 404 envelopes for
+    #: unknown paths and a static mount would answer some of them with HTML.
+    serve_frontend: bool = True
     #: Browser origins allowed to call this API. The search UI runs on its own
     #: port, so without this it cannot read a single response. A tuple rather
     #: than a list because Settings is frozen and a list is not hashable.
@@ -81,6 +87,7 @@ class Settings:
             # Swagger is on by default for development and can be switched off
             # for a deployment that should not advertise its surface.
             docs_enabled=os.environ.get("NIYAMSETU_DOCS", "1") != "0",
+            serve_frontend=os.environ.get("NIYAMSETU_SERVE_FRONTEND", "1") != "0",
             cors_origins=_cors_origins(),
         )
 

@@ -22,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.dependencies import Settings, get_settings
 from backend.app.api.errors import install_exception_handlers
+from backend.app.api.frontend import mount_frontend
 from backend.app.api.routes import documents_router, health_router
 from backend.app.comparison.api import compare_router
 from backend.app.library_search.api import library_router, search_router
@@ -122,6 +123,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # Honour an explicitly supplied Settings everywhere get_settings is
         # injected, instead of the lru_cached environment one.
         application.dependency_overrides[get_settings] = lambda: resolved
+
+    # LAST, deliberately. A mount at "/" matches everything that has not
+    # already been routed, so every API path, /docs and /openapi.json must be
+    # registered before it or the static files would shadow them.
+    if resolved.serve_frontend:
+        mount_frontend(application)
 
     return application
 

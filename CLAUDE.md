@@ -84,7 +84,40 @@ exist is **Ask/RAG, classification, and a product frontend**. The three
 `*_preview/` directories are throwaway developer tools, not Person 2's
 frontend. Do not tell anyone otherwise.
 
-**Current phase — updated 2026-11-14, after Compare.** Phases 0–5 are
+**Current phase — updated 2026-11-16, after frontend integration.**
+
+**The product frontend now exists and is integrated.** The teammate's BodhSetu
+pages live at `frontend/` and are served at `/` **by the FastAPI application
+itself** — one process, one port, no CORS, no proxy. Six supplied pages
+(landing, sign in, register, complete profile, home, Ask) keep their design
+untouched; five were added in that same design language: `explore.html`
+(Library + Search), `document.html` (Document View + provenance),
+`updates.html` (Compare), `saved.html`, `add-document.html` (ingestion).
+`start.bat` launches the whole thing in one click.
+
+All **14 endpoints** are consumed by the frontend. **No new endpoint, no new
+table, no migration, no new dependency.** **1,104 tests pass, 1 skipped.**
+Seven defects were found by driving a real browser and fixed — two of them
+pre-existing backend bugs, including one where **every API upload recorded the
+same `stored_path`**. Full account:
+`backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md`.
+
+**The application reads a fourth database, `niyamsetu_app`**, created empty for
+the team's own documents. `niyamsetu`, `niyamsetu_sample` and
+`niyamsetu_compare` are **byte-for-byte untouched** and one `.env` line away;
+all three were backed up with `pg_dump` first. The application's ingestion
+writes to `data/app/`, deliberately **not** `data/processed/` — that directory
+is a test input, and the first browser upload landing there broke two tests.
+
+**Ask / RAG is still the only deferred capability.** `chat.html` keeps its
+"answers are coming soon" note, generates nothing, and shows real clause
+matches from `/api/search/clauses` labelled as keyword search. The request and
+response contract RAG must publish is in §8 of that report.
+
+D-1 is answered in practice: `frontend/` exists at the repository root, created
+on the owner's explicit instruction. `nlp/` still does not.
+
+**Updated 2026-11-14, after Compare.** Phases 0–5 are
 **done**, and **two feature modules are now `[IMPLEMENTED]`**:
 
 * **Library & Search** — PostgreSQL full-text search over
@@ -108,7 +141,8 @@ not a project dependency.
 so is `niyamsetu_sample`** — both verified byte-identical after the work, with
 the same two migrations and the same checksums.
 
-**Next milestone:** Phase 6 integration with Persons 2–5.
+**Next milestone:** Ask / RAG, then classification. Phase 6 integration is
+done for everything that exists.
 **Still open:** D-10 (corpus), D-7 (embeddings), D-12 (table-aware
 segmentation) — see §22.2. **Newly recorded:** no clause-level annotation
 exists for Compare, so there is no alignment accuracy figure anywhere; see

@@ -1,0 +1,228 @@
+{
+  "description": "Manually assembled test fixture derived from backend test mocks (test_api.py), contract specification examples (backend-integration-contract.md v1.0), and committed segmentation annotations (data/annotations/segmentation/VER-6507f32084d73257.jsonl). This is NOT a live HTTP snapshot from a running database.",
+  "snapshot_version": "1.0.0",
+  "documents": [
+    {
+      "document_id": "DOC-0001",
+      "title": "Re-organisation of districts in the NCT of Delhi - Assignment and Review of Lead Bank Responsibility",
+      "department": "Financial Inclusion & Development Dept, Central Office",
+      "document_type": "circular",
+      "reference_no": "RBI/2026-27/300 FIDD.CO.LBS.BC.No.12/02.08.001/2026-27",
+      "version_count": 1,
+      "latest_publication_date": "2026-10-26"
+    },
+    {
+      "document_id": "DOC-0004",
+      "title": "Reserve Bank of India (Commercial Banks - Prudential Norms on Capital Adequacy) Eleventh Amendment Directions, 2026",
+      "department": "Department of Regulation, Central Office",
+      "document_type": "amendment",
+      "reference_no": "RBI/2026-27/297 DOR.CAP.REC. 251/21-02-002/2026-27",
+      "version_count": 1,
+      "latest_publication_date": "2026-10-23"
+    }
+  ],
+  "clauses": {
+    "DOC-0001": {
+      "clause_aware": [
+        {
+          "clause_id": "CLS-0000010",
+          "fingerprint": "SEG-6507f32084d73257",
+          "ordinal": 0,
+          "segment_type": "preamble",
+          "clause_number": null,
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "RBI/2026-27/300 FIDD.CO.LBS.BC.No.12/02.08.001/2026-27 October 26, 2026. The Chairman / Managing Director & Chief Executive Officer, All Lead Banks. Dear Sir / Madam, Re-organisation of districts in the NCT of Delhi - Assignment and Review of Lead Bank Responsibility.",
+          "page_start": 1,
+          "page_end": 1,
+          "pages": [
+            {
+              "page_number": 1,
+              "char_start": 0,
+              "char_end": 268,
+              "line_index_start": 0,
+              "line_index_end": 5
+            }
+          ],
+          "level": 0,
+          "marker_style": null,
+          "parent_clause_id": null,
+          "metadata": {"type": "preamble"}
+        },
+        {
+          "clause_id": "CLS-0000011",
+          "fingerprint": "SEG-6507f32084d73258",
+          "ordinal": 1,
+          "segment_type": "clause",
+          "clause_number": "1",
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "1. The Government of National Capital Territory of Delhi vide Gazette Notification No. F.223/SDM-II (HQ)/Land/2025/285 dated December 25, 2025 has notified re-organisation of administrative districts in the NCT of Delhi into 13 districts from the erstwhile 11 districts.",
+          "page_start": 1,
+          "page_end": 1,
+          "pages": [
+            {
+              "page_number": 1,
+              "char_start": 269,
+              "char_end": 539,
+              "line_index_start": 6,
+              "line_index_end": 10
+            }
+          ],
+          "level": 1,
+          "marker_style": "numeric_dotted",
+          "parent_clause_id": null,
+          "metadata": {"marker_style": "numeric_dotted"}
+        },
+        {
+          "clause_id": "CLS-0000012",
+          "fingerprint": "SEG-6507f32084d73259",
+          "ordinal": 2,
+          "segment_type": "clause",
+          "clause_number": "2",
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "2. Lead Bank responsibility of the two newly created districts viz. North-West Two and Alphabet G has been assigned to State Bank of India.",
+          "page_start": 1,
+          "page_end": 1,
+          "pages": [
+            {
+              "page_number": 1,
+              "char_start": 540,
+              "char_end": 680,
+              "line_index_start": 11,
+              "line_index_end": 14
+            }
+          ],
+          "level": 1,
+          "marker_style": "numeric_dotted",
+          "parent_clause_id": null,
+          "metadata": {"marker_style": "numeric_dotted"}
+        }
+      ],
+      "paragraph": [
+        {
+          "clause_id": "CLS-0000900",
+          "fingerprint": "SEG-aaaaaaaaaaaaaaaa",
+          "ordinal": 0,
+          "segment_type": "paragraph",
+          "clause_number": null,
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "RBI/2026-27/300 FIDD.CO.LBS.BC.No.12/02.08.001/2026-27 October 26, 2026. The Chairman / Managing Director & Chief Executive Officer, All Lead Banks. Dear Sir / Madam, Re-organisation of districts in the NCT of Delhi - Assignment and Review of Lead Bank Responsibility. The Government of National Capital Territory of Delhi vide Gazette Notification No. F.223/SDM-II (HQ)/Land/2025/285 dated December 25, 2025 has notified re-organisation of administrative districts in the NCT of Delhi into 13 districts from the erstwhile 11 districts.",
+          "page_start": 1,
+          "page_end": 1,
+          "pages": [
+            {
+              "page_number": 1,
+              "char_start": 0,
+              "char_end": 539,
+              "line_index_start": 0,
+              "line_index_end": 10
+            }
+          ],
+          "level": 0,
+          "marker_style": null,
+          "parent_clause_id": null,
+          "metadata": {}
+        }
+      ]
+    },
+    "DOC-0004": {
+      "clause_aware": [
+        {
+          "clause_id": "CLS-0000253",
+          "fingerprint": "SEG-2146f692b738fe91",
+          "ordinal": 5,
+          "segment_type": "clause",
+          "clause_number": "(2)",
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "(2) The minimum leverage ratio shall be 3.5 per cent.",
+          "page_start": 1,
+          "page_end": 2,
+          "pages": [
+            {
+              "page_number": 1,
+              "char_start": 1719,
+              "char_end": 1955,
+              "line_index_start": 32,
+              "line_index_end": 34
+            },
+            {
+              "page_number": 2,
+              "char_start": 119,
+              "char_end": 318,
+              "line_index_start": 4,
+              "line_index_end": 6
+            }
+          ],
+          "level": 2,
+          "marker_style": "paren_number",
+          "parent_clause_id": "CLS-0000250",
+          "metadata": {"marker_style": "paren_number"}
+        },
+        {
+          "clause_id": "CLS-0000254",
+          "fingerprint": "SEG-2146f692b738fe92",
+          "ordinal": 6,
+          "segment_type": "clause",
+          "clause_number": "(3)",
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "(3) Domestic Systemically Important Banks (D-SIBs) shall maintain an additional leverage ratio buffer as prescribed by the Reserve Bank of India.",
+          "page_start": 2,
+          "page_end": 2,
+          "pages": [
+            {
+              "page_number": 2,
+              "char_start": 319,
+              "char_end": 465,
+              "line_index_start": 7,
+              "line_index_end": 10
+            }
+          ],
+          "level": 2,
+          "marker_style": "paren_number",
+          "parent_clause_id": "CLS-0000250",
+          "metadata": {"marker_style": "paren_number"}
+        }
+      ],
+      "paragraph": [
+        {
+          "clause_id": "CLS-0000950",
+          "fingerprint": "SEG-cccccccccccccccc",
+          "ordinal": 0,
+          "segment_type": "paragraph",
+          "clause_number": null,
+          "clause_number_ambiguous": false,
+          "heading": null,
+          "text": "(2) The minimum leverage ratio shall be 3.5 per cent. (3) Domestic Systemically Important Banks (D-SIBs) shall maintain an additional leverage ratio buffer as prescribed by the Reserve Bank of India.",
+          "page_start": 1,
+          "page_end": 2,
+          "pages": [
+            {
+              "page_number": 1,
+              "char_start": 1719,
+              "char_end": 1955,
+              "line_index_start": 32,
+              "line_index_end": 34
+            },
+            {
+              "page_number": 2,
+              "char_start": 119,
+              "char_end": 465,
+              "line_index_start": 4,
+              "line_index_end": 10
+            }
+          ],
+          "level": 0,
+          "marker_style": null,
+          "parent_clause_id": null,
+          "metadata": {}
+        }
+      ]
+    }
+  }
+}
+

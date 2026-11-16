@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Add Document</title>
+  <meta name="description" content="Upload an official government policy PDF. It is extracted, cleaned, segmented and stored with page-level provenance.">
+  <link rel="stylesheet" href="assets/bodhsetu.css">
+  <style>
+    form.add { max-width: 640px; }
+    .drop {
+      border: 2px dashed var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .drop.over { border-color: var(--accent); }
+    .drop .big { font-weight: 600; margin-bottom: 4px; }
+    .drop input[type="file"] { display: none; }
+    .steps-run { list-style: none; margin: 14px 0 0; }
+    .steps-run li { color: var(--muted); font-size: 0.9rem; padding: 3px 0; }
+    .steps-run li.done { color: var(--ink); }
+    .steps-run li.done::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+    .steps-run li.active::before { content: "… "; }
+    .steps-run li.idle::before { content: "· "; }
+  </style>
+</head>
+<body>
+  <main class="site" id="main">
+    <p class="eyebrow">Bridging policies. Connecting people.</p>
+    <h1 class="display">Add a <em>policy document.</em></h1>
+    <p class="lead">Upload an official PDF. BodhSetu extracts its text page by page, removes running headers, segments it into clauses and stores every clause with the page it came from. Nothing is guessed: if a page cannot be read, it is recorded as empty rather than silently skipped.</p>
+
+    <form class="add" id="form" novalidate>
+      <div class="field">
+        <label for="file">Policy PDF</label>
+        <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="fileHint">
+          <div class="big" id="dropLabel">Choose a PDF, or drop one here</div>
+          <div class="meta" id="dropMeta">Text-based PDFs only — scanned documents are out of scope (no OCR).</div>
+          <input type="file" id="file" accept="application/pdf,.pdf">
+        </div>
+        <p class="hint" id="fileHint">Maximum size is set by the server; oversized files are refused before anything is written.</p>
+      </div>
+
+      <div class="field">
+        <label for="title">Title <span class="meta">(required)</span></label>
+        <input type="text" id="title" placeholder="As printed on the document">
+      </div>
+
+      <div class="field">
+        <label for="group">Document group <span class="meta">(required)</span></label>
+        <input type="text" id="group" placeholder="e.g. rbi-lead-bank-scheme">
+        <p class="hint">Which logical policy this file is an issue of. Reuse the same group for a later issue and it becomes a <strong>new version</strong> of that policy, which is what makes it comparable. This is your decision, never inferred from the title.</p>
+      </div>
+
+      <div class="field">
+        <label for="versionLabel">Version label</label>
+        <input type="text" id="versionLabel" placeholder="e.g. 2026-07-01, or 2nd amendment">
+        <p class="hint">Left blank, the publication date or the file name is used.</p>
+      </div>
+
+      <div class="row">
+        <div class="field grow">
+          <label for="department">Issuing authority / department</label>
+          <input type="text" id="department" placeholder="e.g. Reserve Bank of India">
+        </div>
+        <div class="field grow">
+          <label for="docType">Document type</label>
+          <select id="docType">
+            <option value="">Not stated</option>
+            <option value="notification">notification</option>
+            <option value="circular">circular</option>
+            <option value="scheme">scheme</option>
+            <option value="guideline">guideline</option>
+            <option value="amendment">amendment</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field grow">
+          <label for="referenceNo">Reference number</label>
+          <input type="text" id="referenceNo" placeholder="As printed, e.g. RBI/2026-27/300">
+        </div>
+        <div class="field grow">
+          <label for="publicationDate">Publication date</label>
+          <input type="date" id="publicationDate">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field grow">
+          <label for="sourceUrl">Source URL</label>
+          <input type="url" id="sourceUrl" placeholder="The page on the issuing authority's own site">
+          <p class="hint">Where this file came from. A document whose origin cannot be checked should not go into the collection.</p>
+        </div>
+        <div class="field grow">
+          <label for="retrievedAt">Retrieved on</label>
+          <input type="date" id="retrievedAt">
+          <p class="hint">When you downloaded it. <code>data/README.md</code> &sect;5 lists this as mandatory, so it defaults to today rather than being left blank.</p>
+        </div>
+      </div>
+
+      <div class="row keep">
+        <button type="submit" id="submitBtn">Upload and process</button>
+        <button type="button" class="ghost" id="resetBtn">Clear</button>
+      </div>
+      <div class="state inline" id="message" role="status" aria-live="polite"></div>
+    </form>
+
+    <ul class="steps-run" id="steps" hidden>
+      <li id="stepUpload" class="idle">Uploading the file</li>
+      <li id="stepExtract" class="idle">Extracting text, page by page</li>
+      <li id="stepSegment" class="idle">Cleaning headers and segmenting into clauses</li>
+      <li id="stepStore" class="idle">Storing with page provenance</li>
+    </ul>
+
+    <div id="result" style="margin-top:22px"></div>
+  </main>
+
+  <script src="assets/api.js"></script>
+  <script>
+    mountHeader('add');
+    mountFooter('Only publicly published official documents belong in this collection.');
+
+    const file = $('file');
+    const drop = $('drop');
+
+    function showFile() {
+      if (file.files.length) {
+        const f = file.files[0];
+        $('dropLabel').textContent = f.name;
+        $('dropMeta').textContent = (f.size / 1024 / 1024).toFixed(2) + ' MB';
+        if (!$('title').value.trim()) {
+          $('title').value = f.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ');
+        }
+      } else {
+        $('dropLabel').textContent = 'Choose a PDF, or drop one here';
+        $('dropMeta').textContent = 'Text-based PDFs only — scanned documents are out of scope (no OCR).';
+      }
+    }
+
+    drop.addEventListener('click', () => file.click());
+    drop.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); file.click(); }
+    });
+    file.addEventListener('change', showFile);
+    ['dragenter', 'dragover'].forEach((name) =>
+      drop.addEventListener(name, (event) => { event.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((name) =>
+      drop.addEventListener(name, (event) => { event.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', (event) => {
+      const dropped = event.dataTransfer && event.dataTransfer.files;
+      if (dropped && dropped.length) { file.files = dropped; showFile(); }
+    });
+
+    function step(id, cls) { $(id).className = cls; }
+
+    function resetSteps() {
+      ['stepUpload', 'stepExtract', 'stepSegment', 'stepStore'].forEach((id) => step(id, 'idle'));
+    }
+
+    $('resetBtn').addEventListener('click', () => {
+      $('form').reset();
+      showFile();
+      $('message').textContent = '';
+      clear($('result'));
+      $('steps').hidden = true;
+      resetSteps();
+    });
+
+    $('form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clear($('result'));
+      const message = $('message');
+      message.textContent = '';
+
+      if (!file.files.length) { message.textContent = 'Choose a PDF first.'; drop.focus(); return; }
+      if (!$('title').value.trim()) { message.textContent = 'A title is required.'; $('title').focus(); return; }
+      if (!$('group').value.trim()) { message.textContent = 'A document group is required — it is what makes a later issue comparable.'; $('group').focus(); return; }
+
+      const body = new FormData();
+      body.append('file', file.files[0]);
+      body.append('title', $('title').value.trim());
+      body.append('document_group', $('group').value.trim());
+      [
+        ['version_label', 'versionLabel'],
+        ['issuing_department', 'department'],
+        ['document_type', 'docType'],
+        ['reference_no', 'referenceNo'],
+        ['publication_date', 'publicationDate'],
+        ['source_url', 'sourceUrl'],
+        ['retrieved_at', 'retrievedAt'],
+      ].forEach(([field, id]) => {
+        const value = $(id).value.trim();
+        if (value) body.append(field, value);
+      });
+
+      $('submitBtn').disabled = true;
+      $('submitBtn').textContent = 'Processing…';
+      $('steps').hidden = false;
+      resetSteps();
+      step('stepUpload', 'active');
+      message.textContent = 'Ingestion runs synchronously — a 10–40 page PDF takes a few seconds.';
+
+      // The pipeline is one request; the steps below reflect what the server
+      // is doing, and are advanced on a timer only as far as the request
+      // staying open justifies. None of them claims success: the real result
+      // comes from the response.
+      const tick = setTimeout(() => { step('stepUpload', 'done'); step('stepExtract', 'active'); }, 600);
+      const tick2 = setTimeout(() => { step('stepExtract', 'done'); step('stepSegment', 'active'); }, 1800);
+
+      let payload;
+      try {
+        payload = await api('/documents/ingest', { method: 'POST', body: body });
+      } catch (err) {
+        clearTimeout(tick); clearTimeout(tick2);
+        resetSteps();
+        $('steps').hidden = true;
+        $('submitBtn').disabled = false;
+        $('submitBtn').textContent = 'Upload and process';
+        message.textContent = '';
+        showError($('result'), err, 'this document');
+        if (err.code === 'DUPLICATE_FILE' && err.details) {
+          const where = el('p', 'meta',
+            `Already stored as ${err.details.document_id || ''} ${err.details.version_id || ''}`.trim());
+          $('result').appendChild(where);
+        }
+        return;
+      }
+      clearTimeout(tick); clearTimeout(tick2);
+      ['stepUpload', 'stepExtract', 'stepSegment', 'stepStore'].forEach((id) => step(id, 'done'));
+
+      $('submitBtn').disabled = false;
+      $('submitBtn').textContent = 'Upload and process';
+      message.textContent = '';
+      renderResult(payload);
+    });
+
+    function renderResult(payload) {
+      const result = $('result');
+      clear(result);
+
+      const duplicate = payload.status === 'skipped_duplicate';
+      result.appendChild(noteNode(
+        duplicate ? null : 'good',
+        duplicate ? 'This file is already in the collection' : 'Stored',
+        payload.message || (duplicate
+          ? 'Nothing was changed — the same file, by checksum, is already stored.'
+          : 'The document was extracted, segmented and stored.')
+      ));
+
+      const card = el('div', 'card');
+      const dl = el('dl', 'meta-grid');
+      [
+        ['Document', payload.document_id],
+        ['Version', payload.version_id],
+        ['Pages', String(payload.page_count)],
+        ['Clauses (clause-aware)', String((payload.segment_counts || {}).clause_aware ?? '—')],
+        ['Paragraphs', String((payload.segment_counts || {}).paragraph ?? '—')],
+        ['Header lines removed', String(payload.removed_lines)],
+        ['Extraction status', payload.extraction_status],
+        ['Offsets index', payload.offset_basis],
+        ['Checksum (SHA-256)', payload.checksum],
+      ].forEach(([key, value]) => {
+        dl.appendChild(el('dt', null, key));
+        dl.appendChild(el('dd', null, value));
+      });
+      card.appendChild(dl);
+
+      const row = el('div', 'row keep');
+      row.style.marginTop = '14px';
+      const open = el('a', 'btn', 'Open this document');
+      open.href = 'document.html?document_id=' + encodeURIComponent(payload.document_id)
+        + '&version_id=' + encodeURIComponent(payload.version_id);
+      row.appendChild(open);
+      const browse = el('a', 'btn ghost', 'Back to Explore');
+      browse.href = 'explore.html';
+      row.appendChild(browse);
+      card.appendChild(row);
+      result.appendChild(card);
+
+      if ((payload.warnings || []).length) {
+        const warn = el('div', 'note');
+        warn.appendChild(el('h2', null, plural(payload.warnings.length, 'processing warning')));
+        const list = el('ul');
+        list.style.margin = '6px 0 0 18px';
+        payload.warnings.forEach((w) => list.appendChild(el('li', 'meta', w)));
+        warn.appendChild(list);
+        result.appendChild(warn);
+      }
+    }
+
+    // `retrieved_at` is mandatory provenance (data/README.md section 5) and
+    // blank was the default, which put two metadata_completeness errors into
+    // the data-quality report the first time this page was used. Today is
+    // the right default: you are downloading the file now.
+    (function defaultRetrievedAt() {
+      const node = $('retrievedAt');
+      if (!node.value) node.value = new Date().toISOString().slice(0, 10);
+    })();
+
+    showFile();
+  </script>
+</body>
+</html>
