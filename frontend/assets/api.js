@@ -42,10 +42,37 @@ class ApiError extends Error {
  * non-2xx that does not (a proxy error page, say) still throws something
  * legible rather than a JSON parse failure three frames away.
  */
+function readAuthToken() {
+  return localStorage.getItem('bodhsetu_token') || sessionStorage.getItem('bodhsetu_token') || null;
+}
+
+function clearAuthState() {
+  localStorage.removeItem('bodhsetu_token');
+  localStorage.removeItem('bodhsetu_user');
+  localStorage.removeItem('bodhsetu_login_contact');
+  sessionStorage.removeItem('bodhsetu_token');
+  sessionStorage.removeItem('bodhsetu_user');
+}
+
 async function api(path, options) {
+  const opts = Object.assign({}, options || {});
+  const headers = new Headers(opts.headers || {});
+  const token = readAuthToken();
+
+  if (token) {
+    headers.set('Authorization', 'Bearer ' + token);
+    headers.set('x-auth-token', token);
+  }
+
+  if (opts.body && !(opts.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  opts.headers = headers;
+
   let response;
   try {
-    response = await fetch(API_BASE + '/api' + path, options);
+    response = await fetch(API_BASE + '/api' + path, opts);
   } catch (err) {
     throw new ApiError(
       'BACKEND_UNREACHABLE',
@@ -94,6 +121,11 @@ function apiPost(path, payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
+}
+
+/** DELETE a resource. The backend answers with a JSON body, which `api` requires. */
+function apiDelete(path) {
+  return api(path, { method: 'DELETE' });
 }
 
 /* ------------------------------------------------------------------ sequencing */
@@ -270,6 +302,7 @@ function removeSaved(item) {
 
 const NAV = [
   { href: 'user_home.html', label: 'Home', key: 'home' },
+  { href: 'chat.html', label: 'Ask', key: 'ask' },
   { href: 'explore.html', label: 'Explore Policies', key: 'explore' },
   { href: 'updates.html', label: 'My Updates', key: 'updates' },
   { href: 'saved.html', label: 'Saved', key: 'saved' },
@@ -319,12 +352,80 @@ function mountHeader(activeKey) {
     }
   });
 
-  const avatar = el('a', 'avatar', userInitial());
-  avatar.href = currentUser() ? 'user_home.html' : 'login.html';
-  avatar.title = currentUser() ? 'Signed in' : 'Sign in';
+  const user = currentUser();
+  const accountWrap = el('div', 'account-wrap');
+
+  if (user) {
+    const button = el('button', 'account-pill');
+    button.type = 'button';
+    button.setAttribute('aria-expanded', 'false');
+    button.title = 'Account menu';
+
+    const avatar = el('span', 'avatar', userInitial());
+    const label = el('span', 'account-label', user.full_name || 'Citizen account');
+    button.appendChild(avatar);
+    button.appendChild(label);
+
+    const menu = el('div', 'account-menu');
+    menu.hidden = true;
+
+    const summary = el('div', 'account-item account-summary');
+    summary.appendChild(el('div', 'account-summary-name', user.full_name || 'Citizen account'));
+    summary.appendChild(el('div', 'account-summary-meta', user.primary_occupation || 'Occupation not stated'));
+    menu.appendChild(summary);
+
+    const profile = el('button', 'account-item', 'Profile / account');
+    profile.type = 'button';
+    profile.addEventListener('click', () => { window.location.href = 'user_home.html'; });
+    menu.appendChild(profile);
+
+    const about = el('div', 'account-item account-detail', user.about || user.residence_area || 'About information not added yet');
+    menu.appendChild(about);
+
+    const logout = el('button', 'account-item danger', 'Logout');
+    logout.type = 'button';
+    logout.addEventListener('click', async () => {
+      try {
+        await api('/logout', { method: 'POST' });
+      } catch (err) {
+        console.warn('Logout failed on the server; clearing local auth anyway.', err);
+      }
+      clearAuthState();
+      window.location.href = 'login.html';
+    });
+    menu.appendChild(logout);
+
+    const toggle = () => {
+      const open = !menu.hidden;
+      menu.hidden = open;
+      button.setAttribute('aria-expanded', String(!open));
+    };
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      toggle();
+    });
+    document.addEventListener('click', (event) => {
+      if (!accountWrap.contains(event.target)) {
+        menu.hidden = true;
+        button.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    accountWrap.appendChild(button);
+    accountWrap.appendChild(menu);
+  } else {
+    const account = el('a', 'account-pill');
+    account.href = 'login.html';
+    account.title = 'Sign in';
+    const avatar = el('span', 'avatar', 'C');
+    const label = el('span', 'account-label', 'Citizen account');
+    account.appendChild(avatar);
+    account.appendChild(label);
+    accountWrap.appendChild(account);
+  }
 
   right.appendChild(select);
-  right.appendChild(avatar);
+  right.appendChild(accountWrap);
   header.appendChild(nav);
   header.appendChild(right);
   document.body.insertBefore(header, document.body.firstChild);

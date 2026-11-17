@@ -64,10 +64,18 @@
       font-size: 0.9rem;
     }
 
+    .account-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
     .avatar {
       width: 34px;
       height: 34px;
-      border-radius: 50%;
+      border-radius: 8px;
       background: var(--accent);
       color: #fff;
       display: flex;
@@ -75,6 +83,13 @@
       justify-content: center;
       font-weight: 600;
       font-size: 0.9rem;
+    }
+
+    .account-label {
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
     }
 
     main {
@@ -209,7 +224,10 @@
   <header>
     <a href="user_home.html">← Home</a>
     <span class="title">Policy &amp; Scheme Assistant</span>
-    <div class="avatar" id="avatar" title="Citizen account">C</div>
+    <a class="account-pill" href="login.html" aria-label="Citizen account" title="Citizen account">
+      <span class="avatar" id="avatar">C</span>
+      <span class="account-label">Citizen account</span>
+    </a>
   </header>
 
   <main id="stream">

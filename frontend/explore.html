@@ -41,7 +41,35 @@
     .count-box .k { color: var(--muted); font-size: 0.8rem; }
     .mode { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
     .snippet { margin-top: 8px; font-size: 0.92rem; }
-    .save-row { margin-top: 10px; }
+    .selection-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 8px 0 14px; flex-wrap: wrap;
+    }
+    .selection-actions {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .selection-check {
+      display: inline-flex; align-items: center; gap: 8px; color: var(--muted);
+      font-size: 0.9rem; user-select: none;
+    }
+    .selection-check input { width: 16px; height: 16px; margin: 0; }
+    .save-row { margin-top: 10px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .save-row button.danger { color: var(--removed); }
+    .save-row button.danger:hover { color: var(--removed); }
+    .save-row .removing { color: var(--muted); font-size: 0.9rem; font-weight: 400; }
+    .card.is-removed { opacity: 0.55; }
+    .document-card {
+      position: relative;
+    }
+    .document-card .select-box {
+      position: absolute; top: 16px; right: 16px;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.8rem; color: var(--muted);
+      z-index: 1;
+    }
+    .document-card .select-box input {
+      width: 16px; height: 16px; margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -112,6 +140,16 @@
       </aside>
 
       <section>
+        <div class="selection-row" id="selectionRow" hidden>
+          <label class="selection-check">
+            <input type="checkbox" id="selectVisible">
+            <span>Select visible</span>
+          </label>
+          <div class="selection-actions">
+            <span class="meta" id="selectionSummary">0 selected</span>
+            <button type="button" class="ghost" id="removeSelected" disabled>Remove (0)</button>
+          </div>
+        </div>
         <div class="row keep" style="align-items:baseline;justify-content:space-between;margin-bottom:10px">
           <h2 class="section" id="resultsHeading">Documents</h2>
           <span class="meta" id="resultsMeta"></span>
@@ -358,7 +396,9 @@
         card.appendChild(where);
       }
 
-      card.appendChild(saveRow({ kind: 'document', document_id: hit.document_id, title: hit.title }));
+      const row = saveRow({ kind: 'document', document_id: hit.document_id, title: hit.title });
+      row.appendChild(removeButton(hit, card));
+      card.appendChild(row);
       return card;
     }
 
@@ -413,6 +453,68 @@
       button.addEventListener('click', () => { toggleSaved(item); paint(); });
       row.appendChild(button);
       return row;
+    }
+
+    /**
+     * "Remove policy" — deletes the document, its versions, pages and segments
+     * from the database through DELETE /api/documents/{id}.
+     *
+     * Confirmation is a two-step inline toggle rather than window.confirm(): a
+     * modal dialog blocks the page, and this action is irreversible, so the
+     * second click has to be a deliberate one on a visibly armed button.
+     */
+    function removeButton(hit, card) {
+      const button = el('button', 'link danger', 'Remove policy');
+      button.type = 'button';
+      button.title = 'Delete this document and all of its clauses from NiyamSetu';
+      let armed = false;
+      let busy = false;
+
+      const disarm = () => {
+        armed = false;
+        button.textContent = 'Remove policy';
+        button.classList.add('danger');
+      };
+
+      button.addEventListener('click', async () => {
+        if (busy) return;
+        if (!armed) {
+          armed = true;
+          button.textContent = 'Click again to delete permanently';
+          setTimeout(() => { if (armed && !busy) disarm(); }, 6000);
+          return;
+        }
+        busy = true;
+        button.textContent = 'Deleting…';
+        button.classList.remove('danger');
+        try {
+          await apiDelete('/documents/' + encodeURIComponent(hit.document_id));
+        } catch (err) {
+          busy = false;
+          disarm();
+          const note = noteNode('bad', 'Could not remove this document', err.message);
+          card.appendChild(note);
+          setTimeout(() => { if (note.parentNode) note.parentNode.removeChild(note); }, 6000);
+          return;
+        }
+        // Gone from the database: drop the saved entry too, so Saved cannot link
+        // to a document that no longer exists.
+        removeSaved({ kind: 'document', document_id: hit.document_id, title: hit.title });
+        card.classList.add('is-removed');
+        clear(card);
+        card.appendChild(noteNode(
+          null,
+          'Removed',
+          `"${hit.title}" (${hit.document_id}) was deleted from NiyamSetu.`
+        ));
+        // Re-run the current query so counts, facets and paging reflect the
+        // deletion. Delayed, so the confirmation above is actually readable
+        // before the list repaints over it.
+        loadFacets();
+        setTimeout(() => run(state.offset), 1200);
+      });
+
+      return button;
     }
 
     /* ----------------------------------------------------------- suggestions */

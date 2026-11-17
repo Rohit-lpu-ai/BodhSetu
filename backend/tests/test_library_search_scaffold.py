@@ -251,6 +251,9 @@ def test_the_api_exposes_exactly_the_documented_paths():
         "/api/compare/options",
         "/api/compare/entities",
         "/api/compare/entities/labels",
+        # Ask (RAG), added by backend/app/ask/.
+        "/api/ask",
+        "/api/ask/status",
     }
 
 

@@ -242,6 +242,7 @@ cause. `start.bat 8080` uses a different port.
 | | |
 |---|---|
 | **BodhSetu** | http://127.0.0.1:8000/ |
+| Ask a question | http://127.0.0.1:8000/chat.html |
 | Explore policies | http://127.0.0.1:8000/explore.html |
 | What changed (Compare) | http://127.0.0.1:8000/updates.html |
 | Add a document | http://127.0.0.1:8000/add-document.html |
@@ -255,11 +256,31 @@ group** makes the pair comparable in *What changed*.
 The three development corpora are untouched and one line of `.env` away —
 see `backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md` §9.
 
-**Status 2026-11-16: the frontend is integrated.** Library, Search, Document
-View, Compare and ingestion all run on real backend data. **Ask / RAG is
-deferred** — that page keeps its design, says so, and shows real keyword
-matches rather than an invented answer. Full detail, including the seven
-defects a browser session found and the data cleanup:
+**Status 2026-11-16: everything is integrated, Ask included.** Library, Search,
+Document View, Compare, ingestion **and Ask (RAG)** all run on real backend
+data.
+
+**Ask** answers a natural-language question from the clauses actually stored in
+the database. Retrieval is hybrid — BM25 and dense embeddings fused by
+Reciprocal Rank Fusion — and **every citation is checked against the stored
+clause text before it is shown**; a source the model invented is stripped and
+reported. Clicking a `[S1]` marker opens that clause in the document view.
+
+**Generation is configured and live** — Groq, `openai/gpt-oss-120b`, about a
+second per answer. The key lives in `.env` (git-ignored); see `.env.example`
+for the settings and the other supported providers.
+
+**Without a key Ask still works**: it assembles the answer verbatim from the
+matching clauses and says so, in the UI and in the API's `generation_mode`. It
+never presents assembled text as model-written.
+
+> If you swap the model, check it is on your account first — a model your key
+> cannot use returns HTTP 404, not 401. `GET /api/ask/status` reports what is
+> configured (never the key itself).
+
+Full detail:
+[`backend/docs/RAG_IMPLEMENTATION_AND_INTEGRATION_REPORT.md`](backend/docs/RAG_IMPLEMENTATION_AND_INTEGRATION_REPORT.md)
+and, for the frontend integration before it,
 [`backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md`](backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md).
 
 ---
@@ -270,8 +291,9 @@ defects a browser session found and the data cleanup:
 > **backend as actually built** (Person 1: Backend + Document NLP).
 >
 > Status 2026-11-16: ingestion, PostgreSQL persistence, the FastAPI layer,
-> **Library & Search**, **Compare** and the **integrated frontend** are
-> implemented and verified — **1,104 tests passing, 1 skipped, 0 failed**.
+> **Library & Search**, **Compare**, **Ask (RAG)** and the **integrated
+> frontend** are implemented and verified — **1,562 tests passing, 0 skipped,
+> 0 failed**.
 >
 > Search is PostgreSQL full-text over the stored `tsvector`, measured against a
 > substring baseline:

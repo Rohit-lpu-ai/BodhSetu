@@ -84,7 +84,55 @@ exist is **Ask/RAG, classification, and a product frontend**. The three
 `*_preview/` directories are throwaway developer tools, not Person 2's
 frontend. Do not tell anyone otherwise.
 
-**Current phase — updated 2026-11-16, after frontend integration.**
+**Current phase — updated 2026-11-16, after RAG.**
+
+**Ask / RAG is implemented and integrated. Every planned capability now
+exists except classification.** The teammate's `rag_module/` had BM25 and
+dense retrieval; hybrid fusion, context construction, answer generation and
+citation verification were built on top, and the pipeline is mounted as
+`POST /api/ask` + `GET /api/ask/status` with `frontend/chat.html` wired to it.
+**16 API paths. No new table, no migration, no new root dependency.**
+**1,562 tests pass, 0 skipped, 0 failed.**
+
+Six defects were found and fixed, two of them fatal and pre-existing:
+the module was committed as `rag/` while every file imports `rag_module.*`,
+so **nothing in it could import** (and `pytest.ini` never ran its tests);
+and `Settings.llm_provider` defaulted to `"mock"`, so a deployment that forgot
+to configure a model would have shown scripted text as an answer. Full
+account: `backend/docs/RAG_IMPLEMENTATION_AND_INTEGRATION_REPORT.md`.
+
+**Measured.** Hybrid RRF benchmarked through the existing harness on the same
+19 questions as its components: Recall@10 **1.000** (BM25 0.895, dense 0.895),
+MRR 0.787 (dense 0.807 is better at rank 1). Fusion buys complete recall for a
+little top-1 precision. **19 questions, single-annotator labels accepted under
+delegated review — not independent multi-reviewer ground truth**, and there is
+still **no measurement of answer quality**, only of retrieval.
+
+**The index is built from the live database, not from
+`exports/niyamsetu_segments_501.jsonl`.** The export is a snapshot of
+`niyamsetu`'s ids; the app reads `niyamsetu_app`, whose `public_id` sequence is
+its own, so an answer indexed from the export would cite a clause id that
+resolves to different text. The export is untouched and still backs the
+benchmark.
+
+**Generation is LIVE on Groq `openai/gpt-oss-120b`** (owner added the key
+2026-11-16). Real answers in ~1.5 s with verified citations. Three further
+defects surfaced on the first live call, all fixed: `rag_module` reads
+`os.environ` and never loaded `.env`, so a configured key resolved to "no
+provider"; the model named in `.env` did not exist on the account (404, not
+401 — the key was fine); and **`gpt-oss` cites with `【S2】`, not `[S1]`**, so
+an ASCII-only marker pattern silently dropped every citation from a perfectly
+good answer. The marker pattern now accepts ASCII, CJK lenticular and
+fullwidth brackets in all three places that parse them. **1,572 tests pass.**
+
+With no provider configured Ask still works: it retrieves, assembles the
+answer verbatim out of the matched clauses, verifies every citation, and
+labels itself `generation_mode: "extractive"` in the API and with an amber
+pill in the UI. It is never presented as model-written. No vendor SDK is
+installed — both providers speak plain HTTP through the already pinned
+`httpx`.
+
+**Updated 2026-11-16, after frontend integration.**
 
 **The product frontend now exists and is integrated.** The teammate's BodhSetu
 pages live at `frontend/` and are served at `/` **by the FastAPI application
@@ -141,8 +189,8 @@ not a project dependency.
 so is `niyamsetu_sample`** — both verified byte-identical after the work, with
 the same two migrations and the same checksums.
 
-**Next milestone:** Ask / RAG, then classification. Phase 6 integration is
-done for everything that exists.
+**Next milestone:** classification (Person 2) — the last unimplemented
+module. Everything else is built and integrated.
 **Still open:** D-10 (corpus), D-7 (embeddings), D-12 (table-aware
 segmentation) — see §22.2. **Newly recorded:** no clause-level annotation
 exists for Compare, so there is no alignment accuracy figure anywhere; see

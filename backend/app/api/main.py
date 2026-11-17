@@ -21,9 +21,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.dependencies import Settings, get_settings
+from backend.app.api.auth import auth_router
 from backend.app.api.errors import install_exception_handlers
 from backend.app.api.frontend import mount_frontend
 from backend.app.api.routes import documents_router, health_router
+from backend.app.ask.api import ask_router
 from backend.app.comparison.api import compare_router
 from backend.app.library_search.api import library_router, search_router
 
@@ -68,10 +70,25 @@ offsets are sliced out of the stored page text and checked, and
 rule-based entity-extraction baseline, kept on its own endpoint so nothing in
 alignment depends on it.
 
+### Ask
+
+`POST /api/ask` answers a natural-language question from the stored clauses.
+Retrieval is **hybrid**: BM25 and dense embeddings are fused by Reciprocal
+Rank Fusion, so a question can match on wording or on meaning. Every citation
+in an answer was **checked against the stored clause text** before it was
+returned, and `verification_status` says which check passed; a source the
+model invented is stripped and reported rather than shown.
+
+`generation_mode` is the field to read before trusting the prose. `llm` means
+a configured language model wrote it. `extractive` means no model is
+configured and the answer is assembled verbatim out of the source clauses --
+never presented as model-written. `GET /api/ask/status` reports which, before
+the user asks anything.
+
 ### Not here yet
 
-Ask (RAG) and classification are other modules' work. This API is the
-contract they read through.
+Classification is another module's work. This API is the contract it reads
+through.
 """
 
 
@@ -104,6 +121,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Compare owns its router too, for the same reason: everything
     # comparison-related in one directory, this file a composition point.
     application.include_router(compare_router, prefix=API_PREFIX)
+    # Ask (RAG) likewise. Its index is built lazily on the first question, not
+    # here -- embedding the corpus takes ~50 s and must not block startup.
+    application.include_router(ask_router, prefix=API_PREFIX)
+    # Auth & user profile routes
+    application.include_router(auth_router, prefix=API_PREFIX)
 
     # A browser frontend on a different port cannot read this API without
     # CORS, and the search UI is exactly that. Origins come from the

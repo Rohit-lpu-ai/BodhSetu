@@ -1,0 +1,1682 @@
+{
+  "benchmark_metadata": {
+    "benchmark_timestamp": "2026-11-16T14:37:12.127674+00:00",
+    "strategy": "hybrid",
+    "experiment": "clause_aware",
+    "corpus_size": 363,
+    "model_name": "intfloat/multilingual-e5-small",
+    "device": "cpu",
+    "retrieval_configuration": {
+      "k_values": [
+        1,
+        3,
+        5,
+        10
+      ],
+      "top_k": 10,
+      "fusion": "reciprocal_rank_fusion",
+      "rrf_k": 60,
+      "candidate_depth": 20,
+      "components": [
+        "bm25",
+        "dense"
+      ],
+      "batch_size": 32
+    },
+    "index_latency_ms": 18993.319,
+    "avg_query_latency_ms": 27.881,
+    "ground_truth_file": "annotation_worksheet.jsonl",
+    "total_questions_evaluated": 19
+  },
+  "metrics": {
+    "overall": {
+      "recall@1": 0.6842105263157895,
+      "recall@3": 0.8947368421052632,
+      "recall@5": 0.8947368421052632,
+      "recall@10": 1.0,
+      "mrr": 0.7865497076023392,
+      "ndcg@1": 0.6842105263157895,
+      "ndcg@3": 0.8032557635338377,
+      "ndcg@5": 0.8032557635338377,
+      "ndcg@10": 0.8378471942060484
+    },
+    "by_group": {
+      "auxiliary": {
+        "recall@1": 0.75,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.8333333333333334,
+        "ndcg@1": 0.75,
+        "ndcg@3": 0.875,
+        "ndcg@5": 0.875,
+        "ndcg@10": 0.875
+      },
+      "core": {
+        "recall@1": 0.6666666666666666,
+        "recall@3": 0.8666666666666667,
+        "recall@5": 0.8666666666666667,
+        "recall@10": 1.0,
+        "mrr": 0.774074074074074,
+        "ndcg@1": 0.6666666666666666,
+        "ndcg@3": 0.784123967142861,
+        "ndcg@5": 0.784123967142861,
+        "ndcg@10": 0.8279397793276612
+      }
+    },
+    "by_language": {
+      "en": {
+        "recall@1": 0.7142857142857143,
+        "recall@3": 0.8571428571428571,
+        "recall@5": 0.8571428571428571,
+        "recall@10": 1.0,
+        "mrr": 0.7936507936507936,
+        "ndcg@1": 0.7142857142857143,
+        "ndcg@3": 0.7950664109693898,
+        "ndcg@5": 0.7950664109693898,
+        "ndcg@10": 0.842011924024533
+      },
+      "hi": {
+        "recall@1": 0.6,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.7666666666666667,
+        "ndcg@1": 0.6,
+        "ndcg@3": 0.8261859507142916,
+        "ndcg@5": 0.8261859507142916,
+        "ndcg@10": 0.8261859507142916
+      }
+    },
+    "counts": {
+      "total": 19,
+      "by_group": {
+        "auxiliary": 4,
+        "core": 15
+      },
+      "by_language": {
+        "en": 14,
+        "hi": 5
+      }
+    }
+  },
+  "per_query_results": [
+    {
+      "question_id": "CAND-EN-0001",
+      "question": "Which bank has been assigned the Lead Bank responsibility for the newly created district of Old Delhi?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 29.873,
+      "relevant_clause_ids": [
+        "CLS-0000007"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000006",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000010",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000005",
+          "score": 0.031746031746031744,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000013",
+          "score": 0.031009615384615385,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000127",
+          "score": 0.030776515151515152,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000007",
+          "score": 0.029273504273504274,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000128",
+          "score": 0.02862400327131466,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000248",
+          "score": 0.015151515151515152,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000030",
+          "score": 0.014925373134328358,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000015",
+          "score": 0.014705882352941176,
+          "document_id": "DOC-0001"
+        }
+      ],
+      "metrics": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 1.0,
+        "mrr": 0.16666666666666666,
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.3562071871080222
+      }
+    },
+    {
+      "question_id": "CAND-EN-0002",
+      "question": "What Lead Bank action was taken regarding Shahdara district following the re-organisation of districts in the NCT of Delhi?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 28.639,
+      "relevant_clause_ids": [
+        "CLS-0000013"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000005",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000010",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000013",
+          "score": 0.03149801587301587,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000006",
+          "score": 0.031024531024531024,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000015",
+          "score": 0.030776515151515152,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000127",
+          "score": 0.03076923076923077,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000148",
+          "score": 0.028370221327967807,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000128",
+          "score": 0.028083267871170464,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000014",
+          "score": 0.02803921568627451,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000248",
+          "score": 0.014925373134328358,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.3333333333333333,
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.5,
+        "ndcg@5": 0.5,
+        "ndcg@10": 0.5
+      }
+    },
+    {
+      "question_id": "CAND-EN-0003",
+      "question": "From what date does Chapter IV on Minimum Capital Requirements for Operational Risk come into effect under the Commercial Banks Forthcoming Instructions Second Amendment?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 30.301,
+      "relevant_clause_ids": [
+        "CLS-0000033"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000033",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000030",
+          "score": 0.03225806451612903,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000032",
+          "score": 0.031746031746031744,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000250",
+          "score": 0.031009615384615385,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000257",
+          "score": 0.029857397504456328,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000248",
+          "score": 0.029418126757516764,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000255",
+          "score": 0.02854251012145749,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000397",
+          "score": 0.027526395173453996,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000311",
+          "score": 0.027425373134328357,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000254",
+          "score": 0.0273972602739726,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-EN-0004",
+      "question": "How many years of operational risk annual loss data must be used to calculate average losses in the Loss Component for ILM?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 27.77,
+      "relevant_clause_ids": [
+        "CLS-0000074"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000073",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000074",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000078",
+          "score": 0.03125763125763126,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000065",
+          "score": 0.030776515151515152,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000062",
+          "score": 0.03057889822595705,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000077",
+          "score": 0.029910714285714284,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000076",
+          "score": 0.029877369007803793,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000060",
+          "score": 0.028850145288501453,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000070",
+          "score": 0.027799227799227798,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000069",
+          "score": 0.025974025974025976,
+          "document_id": "DOC-0002"
+        }
+      ],
+      "metrics": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.5,
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.6309297535714575,
+        "ndcg@5": 0.6309297535714575,
+        "ndcg@10": 0.6309297535714575
+      }
+    },
+    {
+      "question_id": "CAND-EN-0005",
+      "question": "At what administrative level must rejection of SC/ST loan applications under government programmes be decided?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 27.469,
+      "relevant_clause_ids": [
+        "CLS-0000139"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000139",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000159",
+          "score": 0.03225806451612903,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000136",
+          "score": 0.03149801587301587,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000141",
+          "score": 0.031024531024531024,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000140",
+          "score": 0.03076923076923077,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000148",
+          "score": 0.030330882352941176,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000129",
+          "score": 0.029211087420042643,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000154",
+          "score": 0.027212143650499815,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000143",
+          "score": 0.026875901875901876,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000158",
+          "score": 0.026875901875901876,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-EN-0006",
+      "question": "Are commercial banks permitted to insist on deposits from SC/ST borrowers when evaluating loan applications under government-sponsored poverty alleviation schemes?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 30.965,
+      "relevant_clause_ids": [
+        "CLS-0000136"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000136",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000134",
+          "score": 0.03200204813108039,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000140",
+          "score": 0.031009615384615385,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000141",
+          "score": 0.030834914611005692,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000148",
+          "score": 0.03055037313432836,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000139",
+          "score": 0.030303030303030304,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000167",
+          "score": 0.030158730158730156,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000159",
+          "score": 0.02967032967032967,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000143",
+          "score": 0.027046783625730993,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000154",
+          "score": 0.02658450704225352,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-EN-0007",
+      "question": "Which external commission representative should the SLBC Convenor bank invite to attend State Level Bankers Committee meetings regarding SC/ST credit?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 33.253,
+      "relevant_clause_ids": [
+        "CLS-0000149"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000149",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000166",
+          "score": 0.03225806451612903,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000148",
+          "score": 0.03149801587301587,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000134",
+          "score": 0.031024531024531024,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000141",
+          "score": 0.029877369007803793,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000147",
+          "score": 0.029857397504456328,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000140",
+          "score": 0.028958333333333336,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000146",
+          "score": 0.0288981288981289,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000157",
+          "score": 0.028083267871170464,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000156",
+          "score": 0.027799227799227798,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-EN-0008",
+      "question": "What minimum leverage ratio must be maintained by a Domestic Systemically Important Bank (D-SIB)?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 28.041,
+      "relevant_clause_ids": [
+        "CLS-0000253"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000253",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000255",
+          "score": 0.03225806451612903,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000257",
+          "score": 0.03149801587301587,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000258",
+          "score": 0.03055037313432836,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000496",
+          "score": 0.030536130536130537,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000273",
+          "score": 0.029957522915269395,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000254",
+          "score": 0.029437229437229435,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000256",
+          "score": 0.029411764705882353,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000465",
+          "score": 0.028381642512077296,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000495",
+          "score": 0.02819138376017471,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-EN-0009",
+      "question": "How is the Basel III leverage ratio mathematically defined in terms of capital and exposure measures?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 25.404,
+      "relevant_clause_ids": [
+        "CLS-0000252"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000252",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000495",
+          "score": 0.03225806451612903,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000470",
+          "score": 0.031746031746031744,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000404",
+          "score": 0.029709507042253523,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000260",
+          "score": 0.02964426877470356,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000281",
+          "score": 0.02877846790890269,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000261",
+          "score": 0.028612012987012988,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000314",
+          "score": 0.028205128205128206,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000412",
+          "score": 0.027212143650499815,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000427",
+          "score": 0.02668564312399929,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-EN-0010",
+      "question": "On what frequency basis are the capital measure and exposure measure required to be calculated for the leverage ratio framework?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 28.54,
+      "relevant_clause_ids": [
+        "CLS-0000259"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000412",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000438",
+          "score": 0.03125763125763126,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000261",
+          "score": 0.031054405392392875,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000495",
+          "score": 0.030679156908665108,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000312",
+          "score": 0.029437229437229435,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000252",
+          "score": 0.029236022193768675,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000303",
+          "score": 0.029083245521601686,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000501",
+          "score": 0.028985507246376812,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000259",
+          "score": 0.028693528693528692,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000360",
+          "score": 0.027417840375586856,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@10": 1.0,
+        "mrr": 0.1111111111111111,
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "ndcg@10": 0.3010299956639812
+      }
+    },
+    {
+      "question_id": "CAND-HI-0004",
+      "question": "सरकारी कार्यक्रमों के अंतर्गत अनुसूचित जाति/जनजाति के ऋण आवेदनों को अस्वीकार करने का निर्णय किस स्तर पर लिया जाना चाहिए?",
+      "language": "hi",
+      "dataset_group": "core",
+      "latency_ms": 25.071,
+      "relevant_clause_ids": [
+        "CLS-0000139"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000125",
+          "score": 0.030679156908665108,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000139",
+          "score": 0.01639344262295082,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000136",
+          "score": 0.016129032258064516,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000159",
+          "score": 0.015873015873015872,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000137",
+          "score": 0.015625,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000148",
+          "score": 0.015384615384615385,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000129",
+          "score": 0.015151515151515152,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000138",
+          "score": 0.014925373134328358,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000256",
+          "score": 0.014705882352941176,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000173",
+          "score": 0.014492753623188406,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.5,
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.6309297535714575,
+        "ndcg@5": 0.6309297535714575,
+        "ndcg@10": 0.6309297535714575
+      }
+    },
+    {
+      "question_id": "CAND-HI-0005",
+      "question": "घरेलू प्रणालीगत रूप से महत्वपूर्ण बैंकों (D-SIBs) के लिए न्यूनतम उत्तोलन अनुपात (leverage ratio) कितने प्रतिशत निर्धारित किया गया है?",
+      "language": "hi",
+      "dataset_group": "core",
+      "latency_ms": 29.683,
+      "relevant_clause_ids": [
+        "CLS-0000253"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000253",
+          "score": 0.032266458495966696,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000496",
+          "score": 0.030330882352941176,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000252",
+          "score": 0.029437229437229435,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000495",
+          "score": 0.02900988017658188,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000255",
+          "score": 0.028531243721117136,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000254",
+          "score": 0.02821939586645469,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000464",
+          "score": 0.02782608695652174,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000273",
+          "score": 0.02758751902587519,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000465",
+          "score": 0.027106227106227107,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000497",
+          "score": 0.026856524873828405,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-PROV-0001",
+      "question": "What specific classification is granted to loans sanctioned to State Sponsored Organisations for SCs/STs under Clause 2.6?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 27.025,
+      "relevant_clause_ids": [
+        "CLS-0000138"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000138",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000141",
+          "score": 0.03007688828584351,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000147",
+          "score": 0.030017921146953404,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000166",
+          "score": 0.02900988017658188,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000148",
+          "score": 0.028958333333333336,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000139",
+          "score": 0.028629032258064516,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000170",
+          "score": 0.028404512489927477,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000136",
+          "score": 0.028371628371628373,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000160",
+          "score": 0.02813852813852814,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000129",
+          "score": 0.027526395173453996,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-PROV-0002",
+      "question": "What role is assigned to the District Level Consultative Committees under Clause 1.1 of the Master Circular?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 25.944,
+      "relevant_clause_ids": [
+        "CLS-0000127"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000127",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000013",
+          "score": 0.029910714285714284,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000010",
+          "score": 0.029273504273504274,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000006",
+          "score": 0.029206349206349208,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000128",
+          "score": 0.02900988017658188,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000131",
+          "score": 0.027479766610201392,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000166",
+          "score": 0.027364110201042444,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000327",
+          "score": 0.02658450704225352,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000135",
+          "score": 0.016129032258064516,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000151",
+          "score": 0.016129032258064516,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-PROV-0003",
+      "question": "What leverage ratio requirement is imposed on a branch of a Global Systemically Important Bank (G-SIB) in India under Paragraph 262(2)?",
+      "language": "en",
+      "dataset_group": "core",
+      "latency_ms": 26.009,
+      "relevant_clause_ids": [
+        "CLS-0000253"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000253",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000255",
+          "score": 0.03200204813108039,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000254",
+          "score": 0.031754032258064516,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000257",
+          "score": 0.03149801587301587,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000258",
+          "score": 0.029631255487269532,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000497",
+          "score": 0.029211087420042643,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000251",
+          "score": 0.029083245521601686,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000256",
+          "score": 0.02904040404040404,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000260",
+          "score": 0.028850145288501453,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000362",
+          "score": 0.028381642512077296,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-HI-0001",
+      "question": "अनुसूचित जातियों और अनुसूचित जनजातियों के लिए ऋण सुविधाओं से संबंधित मास्टर परिपत्र रिज़र्व बैंक के किस विभाग द्वारा जारी किया गया है?",
+      "language": "hi",
+      "dataset_group": "auxiliary",
+      "latency_ms": 25.642,
+      "relevant_clause_ids": [
+        "CLS-0000125"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000125",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000030",
+          "score": 0.03200204813108039,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000248",
+          "score": 0.03200204813108039,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000337",
+          "score": 0.015625,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000161",
+          "score": 0.015384615384615385,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000035",
+          "score": 0.015151515151515152,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000151",
+          "score": 0.014925373134328358,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000171",
+          "score": 0.014705882352941176,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000141",
+          "score": 0.014492753623188406,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000137",
+          "score": 0.014285714285714285,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-HI-0002",
+      "question": "भारतीय रिज़र्व बैंक के विनियमन विभाग का केंद्रीय कार्यालय मुंबई में किस मार्ग पर स्थित है?",
+      "language": "hi",
+      "dataset_group": "auxiliary",
+      "latency_ms": 27.171,
+      "relevant_clause_ids": [
+        "CLS-0000030"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000030",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000125",
+          "score": 0.03252247488101534,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000248",
+          "score": 0.031746031746031744,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000033",
+          "score": 0.015625,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000250",
+          "score": 0.015384615384615385,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000032",
+          "score": 0.015151515151515152,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000031",
+          "score": 0.014925373134328358,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000014",
+          "score": 0.014705882352941176,
+          "document_id": "DOC-0001"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000249",
+          "score": 0.014492753623188406,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000146",
+          "score": 0.014285714285714285,
+          "document_id": "DOC-0003"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    },
+    {
+      "question_id": "CAND-HI-0003",
+      "question": "वाणिज्यिक बैंकों के पूंजी पर्याप्तता संबंधी 11वें संशोधन निर्देशों के पत्र-शीर्ष पर कौन सा राष्ट्रीय नारा मुद्रित है?",
+      "language": "hi",
+      "dataset_group": "auxiliary",
+      "latency_ms": 26.533,
+      "relevant_clause_ids": [
+        "CLS-0000248"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000125",
+          "score": 0.032018442622950824,
+          "document_id": "DOC-0003"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000250",
+          "score": 0.01639344262295082,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000248",
+          "score": 0.016129032258064516,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000030",
+          "score": 0.015873015873015872,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000033",
+          "score": 0.015384615384615385,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000032",
+          "score": 0.015151515151515152,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000068",
+          "score": 0.014925373134328358,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000397",
+          "score": 0.014705882352941176,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000450",
+          "score": 0.014492753623188406,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000005",
+          "score": 0.014285714285714285,
+          "document_id": "DOC-0001"
+        }
+      ],
+      "metrics": {
+        "recall@1": 0.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 0.3333333333333333,
+        "ndcg@1": 0.0,
+        "ndcg@3": 0.5,
+        "ndcg@5": 0.5,
+        "ndcg@10": 0.5
+      }
+    },
+    {
+      "question_id": "CAND-PROV-0004",
+      "question": "What requirement is mandated for banks at all times under Paragraph 262(6)?",
+      "language": "en",
+      "dataset_group": "auxiliary",
+      "latency_ms": 26.398,
+      "relevant_clause_ids": [
+        "CLS-0000260"
+      ],
+      "retrieved": [
+        {
+          "rank": 1,
+          "clause_id": "CLS-0000260",
+          "score": 0.03278688524590164,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 2,
+          "clause_id": "CLS-0000339",
+          "score": 0.03149801587301587,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 3,
+          "clause_id": "CLS-0000251",
+          "score": 0.030834914611005692,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 4,
+          "clause_id": "CLS-0000268",
+          "score": 0.03007688828584351,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 5,
+          "clause_id": "CLS-0000326",
+          "score": 0.029386529386529386,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 6,
+          "clause_id": "CLS-0000380",
+          "score": 0.027598020555767037,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 7,
+          "clause_id": "CLS-0000033",
+          "score": 0.016129032258064516,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 8,
+          "clause_id": "CLS-0000286",
+          "score": 0.015625,
+          "document_id": "DOC-0004"
+        },
+        {
+          "rank": 9,
+          "clause_id": "CLS-0000032",
+          "score": 0.015384615384615385,
+          "document_id": "DOC-0002"
+        },
+        {
+          "rank": 10,
+          "clause_id": "CLS-0000342",
+          "score": 0.015384615384615385,
+          "document_id": "DOC-0004"
+        }
+      ],
+      "metrics": {
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "mrr": 1.0,
+        "ndcg@1": 1.0,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "ndcg@10": 1.0
+      }
+    }
+  ]
+}

@@ -288,6 +288,32 @@ class BM25Retriever(BaseRetriever):
             self._tokenized_corpus, k1=self.k1, b=self.b
         )
 
+    @property
+    def corpus_size(self) -> int:
+        """Number of indexed segments."""
+        return len(self._segments)
+
+    def term_idf(self, term: str) -> float:
+        """Lucene BM25 IDF for one token, including tokens not in the corpus.
+
+        Exposed because the Ask pipeline's sufficiency gate needs to know how
+        *distinctive* a question word is before it can judge whether the
+        retrieved passages actually cover the question. A term the corpus has
+        never seen is the strongest possible signal that the question is about
+        something the collection does not contain -- so it is scored at the
+        df=0 ceiling rather than being skipped, which is what the retrieval
+        path does (an unseen term simply contributes no score there).
+        """
+        if self._bm25 is None:
+            return 0.0
+        known = self._bm25.idf.get(term)
+        if known is not None:
+            return float(known)
+        corpus_size = self._bm25.corpus_size
+        if corpus_size <= 0:
+            return 0.0
+        return float(math.log(1.0 + (corpus_size + 0.5) / 0.5))
+
     def retrieve(
         self,
         query: str,

@@ -120,10 +120,18 @@ def test_openapi_and_swagger_survive_the_mount(client: TestClient) -> None:
 
 
 def test_the_mount_adds_no_documented_api_path() -> None:
-    """The 14-path contract is unchanged; / and /app are include_in_schema=False."""
+    """The API contract is unchanged by the mount.
+
+    Sixteen paths since ``backend/app/ask/`` added ``/api/ask`` and
+    ``/api/ask/status``; the point of this test is that ``/``, ``/app`` and
+    ``/favicon.ico`` add none of their own, because they are all
+    ``include_in_schema=False``.
+    """
     paths = create_app(Settings()).openapi()["paths"]
-    assert len(paths) == 14
+    assert len(paths) == 16
+    assert all(path.startswith("/api/") for path in paths)
     assert "/" not in paths
+    assert "/app" not in paths
     assert "/favicon.ico" not in paths
 
 
@@ -212,13 +220,35 @@ def test_the_pages_added_here_contain_no_invented_policy_content() -> None:
             assert marker not in text, f"{page.name} contains placeholder {marker!r}"
 
 
-def test_ask_does_not_claim_an_answer_it_cannot_produce() -> None:
-    """RAG is deferred; chat.html must say so and must not fabricate.
+def test_ask_is_wired_to_the_real_rag_endpoint() -> None:
+    """chat.html calls POST /api/ask, not the clause-search endpoint.
 
-    It is allowed to show real clause hits -- it searches /api/search/clauses
-    -- but only labelled as keyword search.
+    It used to show keyword hits under a "coming soon" note because no RAG
+    existed. Now the pipeline does, and the page must use it -- showing
+    search results while implying an assistant answered would be exactly the
+    fabrication the earlier note was avoiding.
     """
     text = (FRONTEND_DIR / "chat.html").read_text(encoding="utf-8")
-    assert "Answers are coming soon" in text
-    assert "/api/search/clauses" in text
-    assert "not an assistant" in text or "not written by an assistant" in text
+    assert "/api/ask" in text
+    assert "/api/ask/status" in text
+    assert "Answers are coming soon" not in text
+
+
+def test_ask_distinguishes_a_generated_answer_from_an_assembled_one() -> None:
+    """generation_mode must reach the reader, not just the API.
+
+    An extractive answer is assembled verbatim from the sources because no
+    model is configured. Presenting that as model-written prose is the one
+    thing this page must never do.
+    """
+    text = (FRONTEND_DIR / "chat.html").read_text(encoding="utf-8")
+    assert "generation_mode" in text
+    assert "written by a language model" in text
+    assert "no language model configured" in text
+
+
+def test_ask_renders_document_text_as_nodes_never_as_markup() -> None:
+    """The answer and its quotes came out of a PDF by way of a model."""
+    text = (FRONTEND_DIR / "chat.html").read_text(encoding="utf-8")
+    assert "innerHTML" not in text
+    assert "textContent" in text

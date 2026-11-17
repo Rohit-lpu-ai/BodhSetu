@@ -1,8 +1,50 @@
 # NiyamSetu RAG Module (`rag_module/`)
 
-**Author:** Person 3 (Ask Feature + RAG NLP)  
-**Status:** Milestone 2 — BM25 Lexical Retrieval & Dense Semantic Retrieval Complete  
-**Contract Version:** 1.0.0 (aligned with `backend-integration-contract.md` v1.0)  
+**Author:** Person 3 (Ask Feature + RAG NLP); completed and integrated 2026-11-16.
+**Status:** **COMPLETE AND INTEGRATED.** Hybrid retrieval, context construction,
+answer generation and citation verification are implemented, and the pipeline is
+mounted in the FastAPI application as `POST /api/ask`, with the Ask page wired
+to it.
+**Contract Version:** 1.0.0 (aligned with `backend-integration-contract.md` v1.0)
+
+> **Read this first.** Sections 4 and 5 below describe BM25 and dense retrieval
+> as the teammate wrote them, and remain accurate. Section 10 is the current
+> status. The directory name in section 2 is `rag_module/`, which is also what
+> every import in the package expects — the module was committed as `rag/`,
+> under which **nothing in it could import at all**; renaming it back was the
+> first fix of the integration.
+
+**What was added to complete it**
+
+| Piece | File |
+|---|---|
+| Hybrid retrieval (Reciprocal Rank Fusion) | `retrieval/hybrid_retriever.py` |
+| Context construction with a character budget | `generation/context.py` |
+| Grounded system prompt and refusal sentinel | `generation/prompt.py` |
+| LLM providers over plain HTTP (no vendor SDK) | `generation/providers.py` |
+| Answer generation, plus the labelled no-model path | `generation/generator.py` |
+| Citation extraction and verification | `citation/verifier.py` |
+| The end-to-end pipeline and sufficiency gate | `pipeline.py` |
+| Hybrid added to the benchmark harness | `evaluation/benchmark_runner.py` |
+
+**Measured on the same 19 questions as BM25 and dense** (`evaluation/results/`):
+
+| Metric | BM25 | Dense | **Hybrid (RRF)** |
+|---|---|---|---|
+| Recall@1 | 0.632 | **0.737** | 0.684 |
+| Recall@3 | 0.789 | **0.895** | **0.895** |
+| Recall@10 | 0.895 | 0.895 | **1.000** |
+| MRR | 0.717 | **0.807** | 0.787 |
+| NDCG@10 | 0.760 | 0.830 | **0.838** |
+
+Fusion buys complete recall at ten — every question's relevant clause is found,
+which neither component manages alone — for a small loss of top-1 precision
+against dense. **19 questions, single-annotator labels accepted under delegated
+review.** They are not independently annotated multi-reviewer ground truth and
+must not be reported as such.
+
+The backend adapter lives outside this module, in `backend/app/ask/`, so
+`rag_module` still imports nothing from `backend`.
 
 ---
 
@@ -292,7 +334,8 @@ Milestones 1 & 2 run strictly on the Python Standard Library (Python 3.10+):
 | **Milestone 1** | Foundation Tests | **COMPLETE** | 44 unit tests passing (models, config, client, mock client, malformed envelopes, pagination). |
 | **Milestone 2** | BM25 Lexical Retrieval | **COMPLETE** | `bm25_retriever.py` with `BM25Tokenizer` (legal/Devanagari-aware), `compose_searchable_text`, pure-Python Lucene BM25 engine. 72 BM25 tests passing. |
 | **Milestone 2** | Dense Semantic Retrieval | **COMPLETE** | `dense_retriever.py` with `DenseRetriever` implementing `BaseRetriever`, pure-Python cosine similarity, composite indexing, atomic state updates, and tie-breaking. 27 dense tests passing. |
-| **Milestone 2** | Hybrid RRF | *PLANNED* | Reciprocal Rank Fusion of BM25 + Dense rankings. |
-| **Milestone 3** | Citation & Generation | *PLANNED* | Dual-track citation verification & evidence sufficiency engine. |
-| **Milestone 4** | Academic Evaluation | *PLANNED* | Formal quality benchmarks: Recall@k, MRR, chunking comparison, refusal metrics on real regulatory corpus. |
+| **Milestone 2** | Hybrid RRF | **COMPLETE** | `retrieval/hybrid_retriever.py`. Union of both arms merged on `clause_id`, fused by RRF with k=60, candidate depth independent of top_k, deterministic tie-breaking, honest degradation to BM25 when no embedder is available. 33 tests. |
+| **Milestone 3** | Citation & Generation | **COMPLETE** | `generation/` (context budget, grounded prompt, two real HTTP providers, two generators) and `citation/` (marker resolution, two-level quote verification, per-page offsets). An invented source is stripped and reported; an uncited answer loses its sufficiency claim. 87 tests. |
+| **Milestone 4** | Academic Evaluation | **PARTIAL** | Hybrid is benchmarked through the same harness as BM25 and dense, on the same 19 questions — see the table at the top. Still missing: a second annotator, a larger question set, and any measurement of *answer* quality as opposed to retrieval quality. |
+| **Integration** | FastAPI + frontend | **COMPLETE** | `backend/app/ask/` (corpus adapter, service, schemas, router) and `frontend/chat.html`. `POST /api/ask`, `GET /api/ask/status`. 31 tests. |
 

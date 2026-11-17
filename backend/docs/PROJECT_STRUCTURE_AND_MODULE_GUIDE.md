@@ -98,7 +98,10 @@ NiyamSetu-diw_backend/
 │   │   ├── document_processing/  extraction, normalisation, cleaning,
 │   │   │                      segmentation, identity, CLIs
 │   │   ├── library_search/    IMPLEMENTED — search, 4 endpoints (§4)
-│   │   └── comparison/        IMPLEMENTED — Compare, 4 endpoints (§5)
+│   │   ├── comparison/        IMPLEMENTED — Compare, 4 endpoints (§5)
+│   │   └── ask/               IMPLEMENTED — Ask/RAG adapter, 2 endpoints
+│   │                          corpus.py (live DB → segments), service.py
+│   │                          (index lifetime), schemas.py, api.py
 │   ├── docs/              all documentation (this file included)
 │   ├── scripts/           hand-run helpers; nothing in app/ imports these
 │   └── tests/             1,104 tests, 32 modules, tests only
@@ -107,6 +110,9 @@ NiyamSetu-diw_backend/
 │                          (git-ignored); data/app/ is what the running
 │                          application ingests, deliberately separate
 ├── evaluation/            importable package: scorers + dated evidence reports
+├── rag_module/            THE RAG ENGINE — retrieval, generation, citations
+│                          Imports nothing from backend/; the adapter above
+│                          is what connects them. Its own requirements.txt.
 ├── backups/               git-ignored: pre-cleanup pg_dumps and removed files
 ├── NiyamSetu-frontend-pages/  the teammate's original delivery, UNTOUCHED
 ├── preview_app/           THROWAWAY developer preview over pipeline JSON
@@ -574,6 +580,7 @@ break every response model in the API.
 |---|---|
 | **How do I start the whole thing?** | `start.bat`, then the README's first section |
 | **How was the frontend integrated, and what broke?** | `FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md` |
+| **How does Ask/RAG work, and what is it measured at?** | `RAG_IMPLEMENTATION_AND_INTEGRATION_REPORT.md`, then `rag_module/README.md` |
 | What is built, and what was verified? | `BACKEND_FINAL_COMPLETION_REPORT.md` |
 | I am integrating — what can I rely on? | `backend-integration-contract.md` |
 | What are the endpoints, exactly? | `api.md` |

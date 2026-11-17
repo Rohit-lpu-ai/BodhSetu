@@ -23,8 +23,19 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(cfg.rrf_k, 60)
         self.assertEqual(cfg.embedding_tier, "tier1")
         self.assertEqual(cfg.embedding_model_name, "intfloat/multilingual-e5-small")
-        self.assertEqual(cfg.llm_provider, "mock")
+        # "none", not "mock". The mock provider returns scripted text, so a
+        # deployment that simply forgot to configure a model would have put
+        # invented sentences in front of a user. The default must be a
+        # provider that cannot answer, so the pipeline falls back to the
+        # labelled extractive path instead.
+        self.assertEqual(cfg.llm_provider, "none")
+        self.assertEqual(cfg.llm_model_name, "")
         self.assertIsNone(cfg.llm_api_key)
+        # Generation defaults that the Ask service reads.
+        self.assertEqual(cfg.llm_timeout_seconds, 60.0)
+        self.assertEqual(cfg.context_char_budget, 12000)
+        self.assertEqual(cfg.candidate_depth, 20)
+        self.assertTrue(cfg.enable_dense)
 
     @patch.dict(
         os.environ,

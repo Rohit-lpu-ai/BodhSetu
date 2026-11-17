@@ -438,14 +438,15 @@ def test_the_six_original_endpoints_are_still_present():
 def test_the_api_surface_is_exactly_fourteen_paths():
     """A count, so an accidentally exposed route is a failing test.
 
-    Ten when Library & Search was built; fourteen since
+    Ten when Library & Search was built; fourteen once
     ``backend/app/comparison/`` added ``/api/compare``,
     ``/api/compare/options``, ``/api/compare/entities`` and
-    ``/api/compare/entities/labels``. The count is deliberately exact rather
-    than a lower bound, so a route added by accident still fails here.
-    ``test_library_search_scaffold.py`` pins the full set by name.
+    ``/api/compare/entities/labels``; sixteen since ``backend/app/ask/``
+    added ``/api/ask`` and ``/api/ask/status``. The count is deliberately
+    exact rather than a lower bound, so a route added by accident still fails
+    here. ``test_library_search_scaffold.py`` pins the full set by name.
     """
-    assert len(create_app().openapi()["paths"]) == 14
+    assert len(create_app().openapi()["paths"]) == 16
 
 
 def test_search_endpoints_document_the_error_envelope_in_openapi():

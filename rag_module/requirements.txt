@@ -1,0 +1,53 @@
+# NiyamSetu RAG Module Requirements
+#
+# These are the RAG module's own pins, deliberately NOT in the repository's
+# root requirements.txt — the same split `preview_app/requirements.txt` uses.
+# The backend installs, runs and passes its tests without any of them.
+#
+#   .venv\Scripts\python -m pip install -r rag_module/requirements.txt
+#
+# ---------------------------------------------------------------------------
+# What needs nothing at all
+# ---------------------------------------------------------------------------
+# Foundation, BM25 lexical retrieval, hybrid RRF fusion, context construction,
+# citation verification and the Ask pipeline are pure Python standard library.
+# With nothing installed from this file, Ask still works end to end: BM25
+# retrieval, an answer assembled verbatim from the matched clauses, and
+# verified citations.
+
+pytest>=8.0.0
+
+# ---------------------------------------------------------------------------
+# Dense retrieval (optional)
+# ---------------------------------------------------------------------------
+# Needed only for the dense arm of hybrid retrieval, which embeds the corpus
+# with intfloat/multilingual-e5-small. Without these the Ask service logs
+# "dense retrieval unavailable" and runs BM25 only — `GET /api/ask/status`
+# reports `dense_state: unavailable` rather than the answer pretending to be
+# hybrid. Measured contribution on the 19-question benchmark: Recall@10 rises
+# from 0.895 (either component alone) to 1.000 fused.
+#
+# These are large (~400 MB installed). NIYAMSETU_RAG_ENABLE_DENSE=0 turns the
+# dense arm off without uninstalling anything.
+sentence-transformers==6.2.0
+torch==2.15.0
+
+# ---------------------------------------------------------------------------
+# Answer generation (no package needed)
+# ---------------------------------------------------------------------------
+# Deliberately not listed: no vendor SDK is required. Both providers speak
+# plain HTTP through `httpx`, which the backend's root requirements.txt
+# already pins — OpenAI-compatible /chat/completions (covering OpenAI, Groq,
+# Together, OpenRouter, DeepSeek, Mistral, Azure, LM Studio, vLLM) and the
+# local Ollama API. Adding `openai` or `anthropic` would buy nothing that
+# 200 lines of httpx does not, and each vendor added would be another pin.
+#
+# Configure with NIYAMSETU_RAG_LLM_PROVIDER / _MODEL / _API_KEY in .env;
+# see .env.example.
+
+# ---------------------------------------------------------------------------
+# Not used
+# ---------------------------------------------------------------------------
+# faiss-cpu: the dense index is an exact dot product over a few hundred
+#   normalised vectors in pure Python, which is microseconds. FAISS earns its
+#   place somewhere past ~100k vectors, not at 363.

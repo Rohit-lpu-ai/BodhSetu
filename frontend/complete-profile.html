@@ -278,9 +278,9 @@
 
       let saved = false;
 
-      // Method 1: Flask backend
+      // Method 1: local NiyamSetu FastAPI backend
       try {
-        const resp = await fetch('http://127.0.0.1:5000/api/register', {
+        const resp = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -295,7 +295,7 @@
           return;
         }
       } catch (err) {
-        console.info('Flask backend offline, saving to Supabase...');
+        console.warn('Local /api/register error:', err);
       }
 
       // Method 2: Supabase fallback

@@ -70,10 +70,27 @@ header.site nav a.active { color: var(--ink); font-weight: 600; border-bottom: 2
 
 header.site .right { display: flex; align-items: center; gap: 14px; }
 
-.avatar {
+.account-wrap {
+  position: relative;
+}
+
+.account-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.account-pill .avatar {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 8px;
   background: var(--accent);
   color: #fff;
   display: flex;
@@ -82,6 +99,70 @@ header.site .right { display: flex; align-items: center; gap: 14px; }
   font-weight: 600;
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.account-pill .account-label {
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.account-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(20, 33, 28, 0.08);
+  padding: 8px;
+  z-index: 30;
+}
+
+.account-item {
+  width: 100%;
+  display: block;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.account-item:hover {
+  background: var(--paper);
+}
+
+.account-item.danger {
+  color: var(--removed);
+}
+
+.account-summary {
+  padding-top: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 6px;
+  background: transparent;
+}
+
+.account-summary-name {
+  font-weight: 700;
+}
+
+.account-summary-meta {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.account-detail {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
 }
 
 /* -------------------------------------------------------------------- main */

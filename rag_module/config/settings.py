@@ -40,12 +40,27 @@ class Settings:
     embedding_batch_size: int = 32
 
     # Generation & Sufficiency
-    llm_provider: str = "mock"  # "mock" | "ollama" | "api"
-    llm_model_name: str = "mock-model"
+    # "none" by default, NOT "mock": a scripted provider selected by accident
+    # would put invented text in front of a user. Set NIYAMSETU_RAG_LLM_PROVIDER
+    # to openai | groq | together | openrouter | deepseek | mistral | ollama |
+    # auto to turn generation on. See rag_module/generation/providers.py.
+    llm_provider: str = "none"
+    llm_model_name: str = ""
     llm_temperature: float = 0.0
     llm_max_tokens: int = 512
     llm_api_key: Optional[str] = None
     llm_base_url: Optional[str] = None
+    llm_timeout_seconds: float = 60.0
+
+    # Context construction
+    context_char_budget: int = 12000
+    max_passage_chars: int = 3000
+    candidate_depth: int = 20
+
+    # Dense retrieval can be switched off without uninstalling anything.
+    # Embedding 363 clauses with multilingual-e5-small costs ~50 s of CPU on
+    # first build; a deployment that wants Ask up instantly can run BM25 only.
+    enable_dense: bool = True
 
     # Offline / Fixture path
     fixture_dir: Path = field(
@@ -124,10 +139,10 @@ class Settings:
                 "NIYAMSETU_RAG_BATCH_SIZE", "EMBEDDING_BATCH_SIZE", 32
             ),
             llm_provider=_get_str(
-                "NIYAMSETU_RAG_LLM_PROVIDER", "LLM_PROVIDER", "mock"
+                "NIYAMSETU_RAG_LLM_PROVIDER", "LLM_PROVIDER", "none"
             ),
             llm_model_name=_get_str(
-                "NIYAMSETU_RAG_LLM_MODEL", "LLM_MODEL", "mock-model"
+                "NIYAMSETU_RAG_LLM_MODEL", "LLM_MODEL", ""
             ),
             llm_temperature=_get_float(
                 "NIYAMSETU_RAG_LLM_TEMPERATURE", "LLM_TEMPERATURE", 0.0
@@ -137,6 +152,21 @@ class Settings:
             ),
             llm_api_key=os.environ.get("NIYAMSETU_RAG_LLM_API_KEY", os.environ.get("LLM_API_KEY")),
             llm_base_url=os.environ.get("NIYAMSETU_RAG_LLM_BASE_URL", os.environ.get("LLM_BASE_URL")),
+            llm_timeout_seconds=_get_float(
+                "NIYAMSETU_RAG_LLM_TIMEOUT", "LLM_TIMEOUT", 60.0
+            ),
+            context_char_budget=_get_int(
+                "NIYAMSETU_RAG_CONTEXT_CHARS", "RAG_CONTEXT_CHARS", 12000
+            ),
+            max_passage_chars=_get_int(
+                "NIYAMSETU_RAG_MAX_PASSAGE_CHARS", "RAG_MAX_PASSAGE_CHARS", 3000
+            ),
+            candidate_depth=_get_int(
+                "NIYAMSETU_RAG_CANDIDATE_DEPTH", "RAG_CANDIDATE_DEPTH", 20
+            ),
+            enable_dense=_get_str(
+                "NIYAMSETU_RAG_ENABLE_DENSE", "RAG_ENABLE_DENSE", "1"
+            ).strip().lower() not in {"0", "false", "no", "off"},
             fixture_dir=fixture_path,
         )
 

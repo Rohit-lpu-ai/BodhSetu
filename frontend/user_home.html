@@ -53,16 +53,29 @@
       background: #fff;
       color: var(--ink);
     }
+    .account-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+    }
     .avatar {
       width: 36px;
       height: 36px;
-      border-radius: 50%;
+      border-radius: 8px;
       background: var(--accent);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
+    }
+    .account-label {
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
     }
 
     main {
@@ -151,6 +164,7 @@
   <header>
     <nav aria-label="Main navigation">
       <a href="user_home.html" class="active" aria-current="page">Home</a>
+      <a href="chat.html">Ask</a>
       <a href="explore.html">Explore Policies</a>
       <a href="updates.html">My Updates</a>
       <a href="saved.html">Saved</a>
@@ -161,7 +175,10 @@
         <option>English</option>
         <option>हिन्दी</option>
       </select>
-      <div class="avatar" id="avatar" title="Citizen account">C</div>
+      <a class="account-pill" href="login.html" aria-label="Citizen account" title="Citizen account">
+        <span class="avatar" id="avatar">C</span>
+        <span class="account-label">Citizen account</span>
+      </a>
     </div>
   </header>
 

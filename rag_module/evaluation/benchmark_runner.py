@@ -47,6 +47,11 @@ from rag_module.evaluation.metrics import (
 )
 from rag_module.retrieval.bm25_retriever import BM25Retriever
 from rag_module.retrieval.dense_retriever import DenseRetriever
+from rag_module.retrieval.hybrid_retriever import (
+    DEFAULT_CANDIDATE_DEPTH,
+    DEFAULT_RRF_K,
+    HybridRetriever,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +79,11 @@ class BenchmarkConfig:
     device: str = "cpu"
     batch_size: int = 32
     use_verified: bool = True
+    #: Reciprocal Rank Fusion constant, used only by the hybrid strategy.
+    rrf_k: int = DEFAULT_RRF_K
+    #: How deep each arm retrieves before fusion. Independent of top_k, so
+    #: fusing cannot be starved of the candidates it exists to recover.
+    candidate_depth: int = DEFAULT_CANDIDATE_DEPTH
 
     def __post_init__(self) -> None:
         self.worksheet_path = Path(self.worksheet_path)
@@ -172,9 +182,27 @@ def create_retriever(
             batch_size=config.batch_size,
         )
         return DenseRetriever(embedder=dense_embedder)
+    elif normalized == "hybrid":
+        # Hybrid is BM25 and dense fused by Reciprocal Rank Fusion. It is
+        # benchmarked through exactly the same harness as its two components,
+        # on the same corpus and the same 19 questions, because a fusion that
+        # is only ever measured on its own terms proves nothing about whether
+        # fusing helped.
+        if embedder is None:
+            embedder = SentenceTransformerEmbedder(
+                model_name_or_path=config.model_name,
+                device=config.device,
+                batch_size=config.batch_size,
+            )
+        return HybridRetriever(
+            embedder=embedder,
+            rrf_k=getattr(config, "rrf_k", DEFAULT_RRF_K),
+            candidate_depth=getattr(config, "candidate_depth", DEFAULT_CANDIDATE_DEPTH),
+        )
     else:
         raise ValueError(
-            f"Unknown retrieval strategy: {strategy!r}. Supported: 'bm25', 'dense'."
+            f"Unknown retrieval strategy: {strategy!r}. "
+            "Supported: 'bm25', 'dense', 'hybrid'."
         )
 
 
@@ -254,7 +282,16 @@ def run_single_retriever_benchmark(
     # Model and configuration metadata
     model_name = "None (Lexical BM25Okapi Lucene-IDF)"
     device = "cpu"
-    if strategy.lower() == "dense":
+    if strategy.lower() == "hybrid":
+        dense_arm = getattr(retriever, "dense", None)
+        embedder_obj = getattr(dense_arm, "embedder", None) if dense_arm else None
+        model_name = (
+            getattr(embedder_obj, "model_name_or_path", str(embedder_obj))
+            if embedder_obj is not None
+            else "None (lexical only - no embedder available)"
+        )
+        device = getattr(embedder_obj, "device", config.device) if embedder_obj else "cpu"
+    elif strategy.lower() == "dense":
         model_name = config.model_name
         device = config.device
         if hasattr(retriever, "embedder") and retriever.embedder is not None:
@@ -276,6 +313,16 @@ def run_single_retriever_benchmark(
         retrieval_config["batch_size"] = config.batch_size
         retrieval_config["similarity"] = "cosine"
         retrieval_config["normalize_embeddings"] = True
+    elif strategy.lower() == "hybrid":
+        retrieval_config["fusion"] = "reciprocal_rank_fusion"
+        retrieval_config["rrf_k"] = getattr(retriever, "rrf_k", DEFAULT_RRF_K)
+        retrieval_config["candidate_depth"] = getattr(
+            retriever, "candidate_depth", DEFAULT_CANDIDATE_DEPTH
+        )
+        retrieval_config["components"] = list(
+            getattr(retriever, "active_components", ["bm25"])
+        )
+        retrieval_config["batch_size"] = config.batch_size
 
     if metadata_extra:
         retrieval_config.update(metadata_extra)
@@ -325,7 +372,7 @@ def run_benchmark(
 
     Args:
         config: Benchmark configuration.
-        strategy: 'bm25' or 'dense'.
+        strategy: 'bm25', 'dense' or 'hybrid'.
         retriever_instance: Optional pre-constructed BaseRetriever.
         embedder_instance: Optional pre-constructed BaseEmbedder (for dense testing).
         save_results: Whether to persist result JSON to config.results_dir.
@@ -340,8 +387,10 @@ def run_benchmark(
         RuntimeError: If model loading or dense indexing fails.
     """
     strategy_norm = strategy.lower().strip()
-    if strategy_norm not in {"bm25", "dense"}:
-        raise ValueError(f"Invalid strategy: {strategy!r}. Must be 'bm25' or 'dense'.")
+    if strategy_norm not in {"bm25", "dense", "hybrid"}:
+        raise ValueError(
+            f"Invalid strategy: {strategy!r}. Must be 'bm25', 'dense' or 'hybrid'."
+        )
 
     # 1. Load experiment-isolated corpus
     corpus, _ = load_evaluation_corpus(config)
@@ -461,7 +510,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--strategy",
-        choices=["bm25", "dense", "all"],
+        choices=["bm25", "dense", "hybrid", "all"],
         default="bm25",
         help="Retrieval strategy to benchmark (default: bm25).",
     )
@@ -519,7 +568,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     strategies_to_run = (
-        ["bm25", "dense"] if args.strategy == "all" else [args.strategy]
+        ["bm25", "dense", "hybrid"] if args.strategy == "all" else [args.strategy]
     )
 
     exit_code = 0

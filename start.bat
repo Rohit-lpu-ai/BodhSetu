@@ -12,10 +12,12 @@ REM    1. the project virtualenv exists and has the dependencies
 REM    2. .env exists (it holds the database password; never committed)
 REM    3. PostgreSQL answers
 REM    4. the schema migrations are applied
-REM    5. nothing else is already on the port
+REM    5. port availability (auto-frees stale process if port is occupied)
+REM    6. launches server and opens the frontend in the default browser
 REM
-REM  Usage:  start.bat              (port 8000)
+REM  Usage:  start.bat              (port 8000, opens frontend)
 REM          start.bat 8080         (another port)
+REM          start.bat 8000 chat.html (specific frontend page)
 REM ===================================================================
 
 setlocal EnableDelayedExpansion
@@ -24,7 +26,11 @@ cd /d "%~dp0"
 set "PORT=%~1"
 if "%PORT%"=="" set "PORT=8000"
 
+set "PAGE=%~2"
+
 set "PY=%~dp0.venv\Scripts\python.exe"
+set "PYW=%~dp0.venv\Scripts\pythonw.exe"
+if not exist "%PYW%" set "PYW=%PY%"
 
 echo.
 echo   NiyamSetu - starting up
@@ -87,40 +93,43 @@ if errorlevel 1 (
 )
 echo   [ok] schema up to date
 
-REM --- 5. port free --------------------------------------------------
+REM --- 5. port check & auto-free --------------------------------------
 netstat -ano | findstr /R /C:"LISTENING" | findstr /C:":%PORT% " >nul 2>&1
 if not errorlevel 1 (
-  echo.
-  echo   [X] Port %PORT% is already in use.
-  echo       Close whatever is using it, or start on another port:
-  echo         start.bat 8080
-  echo.
-  goto :fail
+  echo   [!] Port %PORT% is in use by an existing process.
+  echo       Stopping previous process to free port %PORT%...
+  for /f "tokens=5" %%a in ('netstat -ano ^| findstr /R /C:"LISTENING" ^| findstr /C:":%PORT% "') do (
+    taskkill /F /T /PID %%a >nul 2>&1
+  )
+  "%PY%" -c "import time; time.sleep(1)" >nul 2>&1
+  netstat -ano | findstr /R /C:"LISTENING" | findstr /C:":%PORT% " >nul 2>&1
+  if not errorlevel 1 (
+    echo   [X] Port %PORT% could not be freed.
+    echo       Close whatever is using it, or start on another port:
+    echo         start.bat 8080
+    echo.
+    goto :fail
+  )
+  echo   [ok] port %PORT% freed
+) else (
+  echo   [ok] port %PORT% is free
 )
-echo   [ok] port %PORT% is free
 
 echo.
 echo   ------------------------------------------------------------
-echo     BodhSetu          http://127.0.0.1:%PORT%/
-echo     Explore policies  http://127.0.0.1:%PORT%/explore.html
-echo     Add a document    http://127.0.0.1:%PORT%/add-document.html
-echo     API documentation http://127.0.0.1:%PORT%/docs
+echo     Frontend Landing     http://127.0.0.1:%PORT%/
+echo     User Home / App      http://127.0.0.1:%PORT%/user_home.html
+echo     Explore Policies     http://127.0.0.1:%PORT%/explore.html
+echo     Chat / Ask Policy    http://127.0.0.1:%PORT%/chat.html
+echo     Add a Document       http://127.0.0.1:%PORT%/add-document.html
+echo     API Documentation    http://127.0.0.1:%PORT%/docs
 echo   ------------------------------------------------------------
-echo     Press Ctrl+C in this window to stop.
+echo     Opening frontend in your browser...
+echo     Press Ctrl+C in this window to stop the server.
 echo.
 
-REM Open the browser a moment after the server starts listening. `start`
-REM returns immediately, so the server below still owns this window and
-REM Ctrl+C still stops it.
-REM
-REM PING, not TIMEOUT, and by full path. Two reasons, both observed here:
-REM   - bare `timeout` resolves to the GNU utility when Git for Windows is on
-REM     PATH, which takes a duration rather than /t;
-REM   - timeout.exe refuses to run at all when stdin is not a console
-REM     ("Input redirection is not supported"), which is the case whenever
-REM     this script is launched with its output redirected to a log.
-REM ping has neither problem. 4 pings one second apart is a ~3 second wait.
-start "" /b cmd /c "%SystemRoot%\System32\PING.EXE -n 4 127.0.0.1 >nul & start "" http://127.0.0.1:%PORT%/"
+REM Open the browser once the server is listening and answering health checks.
+start "" "%PYW%" -m backend.scripts.open_browser %PORT% %PAGE%
 
 "%PY%" -m uvicorn backend.app.api.main:app --host 127.0.0.1 --port %PORT%
 

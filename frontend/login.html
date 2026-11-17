@@ -267,9 +267,9 @@
       submitBtn.textContent = 'Signing in...';
       const done = () => { submitBtn.disabled = false; submitBtn.textContent = 'Sign In'; };
 
-      // Method A: local Flask backend
+      // Method A: local NiyamSetu FastAPI backend
       try {
-        const resp = await fetch('http://127.0.0.1:5000/api/login', {
+        const resp = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contact: contactVal, password: passwordVal })
@@ -285,11 +285,13 @@
           window.location.href = 'user_home.html';
           return;
         }
-        done();
-        say(data.error || 'Invalid credentials. Please check your password.');
-        return;
+        if (resp.ok && !data.success) {
+          done();
+          say(data.error || 'Invalid credentials. Please check your password.');
+          return;
+        }
       } catch (err) {
-        console.info('Flask backend offline, trying Supabase...');
+        console.warn('Local /api/login error:', err);
       }
 
       // Method B: Supabase fallback

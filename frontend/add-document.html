@@ -55,12 +55,6 @@
         <p class="hint">Which logical policy this file is an issue of. Reuse the same group for a later issue and it becomes a <strong>new version</strong> of that policy, which is what makes it comparable. This is your decision, never inferred from the title.</p>
       </div>
 
-      <div class="field">
-        <label for="versionLabel">Version label</label>
-        <input type="text" id="versionLabel" placeholder="e.g. 2026-07-01, or 2nd amendment">
-        <p class="hint">Left blank, the publication date or the file name is used.</p>
-      </div>
-
       <div class="row">
         <div class="field grow">
           <label for="department">Issuing authority / department</label>
@@ -82,25 +76,13 @@
 
       <div class="row">
         <div class="field grow">
-          <label for="referenceNo">Reference number</label>
-          <input type="text" id="referenceNo" placeholder="As printed, e.g. RBI/2026-27/300">
-        </div>
-        <div class="field grow">
           <label for="publicationDate">Publication date</label>
           <input type="date" id="publicationDate">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field grow">
-          <label for="sourceUrl">Source URL</label>
-          <input type="url" id="sourceUrl" placeholder="The page on the issuing authority's own site">
-          <p class="hint">Where this file came from. A document whose origin cannot be checked should not go into the collection.</p>
         </div>
         <div class="field grow">
           <label for="retrievedAt">Retrieved on</label>
           <input type="date" id="retrievedAt">
-          <p class="hint">When you downloaded it. <code>data/README.md</code> &sect;5 lists this as mandatory, so it defaults to today rather than being left blank.</p>
+          <p class="hint">When you downloaded it; defaults to today.</p>
         </div>
       </div>
 
@@ -186,16 +168,18 @@
       body.append('file', file.files[0]);
       body.append('title', $('title').value.trim());
       body.append('document_group', $('group').value.trim());
+
+      const userContact = localStorage.getItem('bodhsetu_login_contact') || (currentUser() && currentUser().contact) || '';
+      if (userContact) body.append('user_contact', userContact);
+
       [
-        ['version_label', 'versionLabel'],
         ['issuing_department', 'department'],
         ['document_type', 'docType'],
-        ['reference_no', 'referenceNo'],
         ['publication_date', 'publicationDate'],
-        ['source_url', 'sourceUrl'],
         ['retrieved_at', 'retrievedAt'],
       ].forEach(([field, id]) => {
-        const value = $(id).value.trim();
+        const el = $(id);
+        const value = el ? el.value.trim() : '';
         if (value) body.append(field, value);
       });
 

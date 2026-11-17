@@ -287,9 +287,9 @@
       localStorage.setItem('bodhsetu_login_contact', result.formatted);
       submitBtn.disabled = true;
 
-      // Method A: local Flask backend
+      // Method A: local NiyamSetu FastAPI backend
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/check-user', {
+        const response = await fetch('/api/check-user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contact: raw })
@@ -301,10 +301,10 @@
           return;
         }
       } catch (err) {
-        // fall back to Supabase
+        console.warn('Local check-user error:', err);
       }
 
-      // Method B: Supabase
+      // Method B: Supabase (if configured)
       try {
         const base = 'https://ipxqutjnwyilfbletkir.supabase.co/rest/v1/user_database';
         const key = 'sb_publishable_F2RHMXsrlRD3OYjfHt-YfQ_0x6Sf9O8';
@@ -324,11 +324,13 @@
           return;
         }
       } catch (err) {
-        console.error('Supabase query failed:', err);
+        console.warn('Supabase query failed:', err);
       }
 
-      submitBtn.disabled = false;
-      message.textContent = 'Connection error. Please try again, or browse the library below without an account.';
+      // Fallback: Proceed directly to register or login without blocking
+      const localUser = localStorage.getItem('bodhsetu_user');
+      const targetPage = localUser ? 'login.html' : 'register.html';
+      window.location.href = targetPage + '?contact=' + encodeURIComponent(result.formatted);
     });
   </script>
 </body>

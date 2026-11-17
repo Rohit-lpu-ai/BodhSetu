@@ -64,10 +64,18 @@
       font-size: 0.9rem;
     }
 
+    .account-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
     .avatar {
       width: 34px;
       height: 34px;
-      border-radius: 50%;
+      border-radius: 8px;
       background: var(--accent);
       color: #fff;
       display: flex;
@@ -75,6 +83,13 @@
       justify-content: center;
       font-weight: 600;
       font-size: 0.9rem;
+    }
+
+    .account-label {
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
     }
 
     main {
@@ -206,6 +221,130 @@
 
     .hit mark { background: #e4ecdf; color: var(--ink); padding: 0 1px; border-radius: 2px; }
 
+    /* The assistant's turn. Mirrors .msg-user, flipped: same bubble radius
+       idiom, white ground instead of accent, so the two read as one thread. */
+    .msg-bot {
+      align-self: flex-start;
+      max-width: 92%;
+    }
+
+    .msg-bot .meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .msg-bot .bubble {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 14px 18px;
+      border-radius: 14px 14px 14px 4px;
+      word-break: break-word;
+    }
+
+    .msg-bot .bubble p { margin-bottom: 10px; }
+
+    .msg-bot .bubble p:last-child { margin-bottom: 0; }
+
+    .msg-bot .bubble ul { margin: 0 0 10px 20px; }
+
+    .msg-bot .bubble li { margin-bottom: 6px; }
+
+    /* An inline [S1] reference, rendered as a link to the cited clause. */
+    .cite {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      line-height: 1.6;
+      padding: 0 6px;
+      margin: 0 1px;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      color: var(--accent);
+      text-decoration: none;
+      vertical-align: 1px;
+    }
+
+    .cite:hover { background: var(--accent); color: #fff; }
+
+    .sources { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+
+    .sources h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .srcrow { display: flex; gap: 8px; align-items: baseline; margin-bottom: 8px; }
+
+    .srcrow .tagnum {
+      flex-shrink: 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      padding: 0 6px;
+    }
+
+    .srcrow .body { font-size: 0.86rem; }
+
+    .srcrow a { color: var(--ink); font-weight: 600; text-decoration: none; }
+
+    .srcrow a:hover { color: var(--accent); text-decoration: underline; }
+
+    .srcrow .where { color: var(--muted); font-size: 0.78rem; }
+
+    .srcrow blockquote {
+      margin: 4px 0 0;
+      padding-left: 10px;
+      border-left: 2px solid var(--line);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+    .pill {
+      font-size: 0.72rem;
+      padding: 2px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: var(--paper);
+    }
+
+    .pill.good { border-color: var(--accent); color: var(--accent); }
+
+    .pill.warn { border-color: #8a6a1f; color: #8a6a1f; }
+
+    .warnbox {
+      margin-top: 10px;
+      border: 1px solid #8a6a1f;
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: #fff;
+      color: #8a6a1f;
+      font-size: 0.82rem;
+    }
+
+    /* Three dots while the pipeline runs. */
+    .thinking { display: inline-flex; gap: 4px; align-items: center; }
+
+    .thinking i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+      animation: blink 1.2s infinite both;
+    }
+
+    .thinking i:nth-child(2) { animation-delay: 0.2s; }
+
+    .thinking i:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) { .thinking i { animation: none; } }
+
     .foot {
       max-width: 760px;
       margin: 8px auto 0;
@@ -235,19 +374,19 @@
     <a href="user_home.html">← Home</a>
     <a href="explore.html" style="font-weight:500;color:var(--muted)">Explore Policies</a>
     <span class="title">Policy &amp; Scheme Assistant</span>
-    <div class="avatar" id="avatar" title="Citizen account">C</div>
+    <a class="account-pill" href="login.html" aria-label="Citizen account" title="Citizen account">
+      <span class="avatar" id="avatar">C</span>
+      <span class="account-label">Citizen account</span>
+    </a>
   </header>
 
   <main id="stream">
     <div class="thread" id="thread">
-      <div class="empty" id="empty">Ask a question below to get started.</div>
+      <div class="empty" id="empty">Ask a question about the policy documents in the collection.</div>
 
-      <div class="note" id="note">
-        <h2>Answers are coming soon</h2>
-        <p>Your question has been recorded. Source-grounded answers from official government Gazettes, schemes and
-          circulars will appear here in the next phase.</p>
-        <p style="margin-top:8px">In the meantime, the clauses below are the real passages your words match in the
-          stored documents &mdash; found by keyword search, not written by an assistant.</p>
+      <div class="note" id="note" hidden>
+        <h2 id="noteTitle">Checking what this assistant can answer from</h2>
+        <p id="noteBody">Reading the collection&hellip;</p>
       </div>
     </div>
   </main>
@@ -262,12 +401,39 @@
   </footer>
 
   <script>
+    /* ------------------------------------------------------------------
+     * BodhSetu Ask — the real RAG client.
+     *
+     * Talks to POST /api/ask, which retrieves clauses from the stored
+     * documents (BM25 + dense, fused by RRF), generates an answer grounded
+     * in them, and verifies every citation against the stored clause text
+     * before returning it.
+     *
+     * Four rules this page keeps, because they are what makes the answer
+     * trustworthy rather than merely fluent:
+     *
+     *  1. **Nothing is rendered as HTML.** The answer and every quote came
+     *     out of a PDF by way of a language model. Markdown-ish structure is
+     *     turned into DOM nodes here; the text itself only ever reaches the
+     *     page through textContent.
+     *  2. **generation_mode is shown, never hidden.** `llm` means a model
+     *     wrote it; `extractive` means no model is configured and the answer
+     *     is assembled verbatim from the sources. The page says which.
+     *  3. **A citation links to the clause it cites.** [S1] becomes a link
+     *     into document.html with the real document, version and clause ids,
+     *     so a reader can check it in two clicks.
+     *  4. **Failure is stated, not mimicked.** A refusal, a missing model and
+     *     an unreachable backend each render as themselves. There is no
+     *     fallback that invents an answer.
+     * ------------------------------------------------------------------ */
+
     const thread = document.getElementById('thread');
     const note = document.getElementById('note');
     const empty = document.getElementById('empty');
     const stream = document.getElementById('stream');
     const form = document.getElementById('form');
     const input = document.getElementById('input');
+    const sendBtn = form.querySelector('button[type="submit"]');
 
     // Show the signed-in user's initial
     try {
@@ -278,177 +444,379 @@
       console.warn('Could not read user profile', err);
     }
 
-    function addMessage(text) {
+    const el = (tag, cls, text) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined && text !== null) n.textContent = String(text);
+      return n;
+    };
+
+    let busy = false;
+    let askSeq = 0;
+    let status = null;
+
+    /* --------------------------------------------------------- the thread */
+
+    function addUserMessage(text) {
       empty.style.display = 'none';
-
-      const row = document.createElement('div');
-      row.className = 'msg-user';
-
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-      meta.textContent = 'You \u00b7 ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble';
-      bubble.textContent = text;
-
+      const row = el('div', 'msg-user');
+      const meta = el('div', 'meta',
+        'You · ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      const bubble = el('div', 'bubble', text);
       row.appendChild(meta);
       row.appendChild(bubble);
-      thread.insertBefore(row, note);
-      stream.scrollTop = stream.scrollHeight;
+      thread.appendChild(row);
+      scroll();
+      return row;
     }
 
-    /* ------------------------------------------------------------------
-     * Real evidence, not a simulated answer.
-     *
-     * Ask / RAG is a separate module and is not implemented, so this page
-     * does not generate an answer and does not pretend to. What it CAN do
-     * honestly is show the actual clauses the question's words match in the
-     * stored documents, with the page each one is on and a link to it.
-     *
-     * Three rules make that safe to show:
-     *   - it is labelled as keyword search, never as an answer;
-     *   - every hit carries its document and page, so it can be checked;
-     *   - the snippet reaches the page as text nodes, never as HTML. The
-     *     [[hl]] sentinels the API returns are deliberately not markup,
-     *     because this text came out of a PDF.
-     * ------------------------------------------------------------------ */
+    function addBotBubble(label) {
+      const row = el('div', 'msg-bot');
+      const meta = el('div', 'meta', label || 'BodhSetu');
+      const bubble = el('div', 'bubble');
+      row.appendChild(meta);
+      row.appendChild(bubble);
+      thread.appendChild(row);
+      scroll();
+      return { row: row, meta: meta, bubble: bubble };
+    }
 
-    let searchSeq = 0;
+    function thinkingDots(bubble) {
+      const wrap = el('span', 'thinking');
+      wrap.appendChild(el('i'));
+      wrap.appendChild(el('i'));
+      wrap.appendChild(el('i'));
+      bubble.appendChild(el('span', null, 'Searching the documents '));
+      bubble.appendChild(wrap);
+    }
 
-    function highlightInto(parent, snippet) {
-      const parts = String(snippet == null ? '' : snippet).split(/(\[\[hl\]\]|\[\[\/hl\]\])/);
-      let on = false;
+    function scroll() { stream.scrollTop = stream.scrollHeight; }
+
+    function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    /* ------------------------------------------------------ answer render */
+
+    function docHref(c) {
+      let href = 'document.html?document_id=' + encodeURIComponent(c.document_id);
+      if (c.version_id) href += '&version_id=' + encodeURIComponent(c.version_id);
+      if (c.clause_id) href += '&clause_id=' + encodeURIComponent(c.clause_id);
+      return href;
+    }
+
+    /**
+     * Render one paragraph, turning [S1] markers into links to the clause.
+     *
+     * Split on the marker pattern so the surrounding prose goes in as text
+     * nodes. A marker with no matching citation is rendered as plain text
+     * rather than a dead link — the backend strips invented markers, so this
+     * is belt and braces.
+     */
+    function renderWithCitations(parent, text, byMarker) {
+      // Brackets: ASCII [ ], CJK lenticular 【 】 and fullwidth ［ ］. Models do not
+      // reliably use the ASCII form the prompt asks for -- gpt-oss emits the
+      // lenticular one -- and an ASCII-only split silently renders a citation
+      // as plain text instead of a link. Same set as MARKER_PATTERN in
+      // rag_module/citation/verifier.py; the two must stay in step.
+      const parts = String(text).split(/([\[【［]\s*S\s*\d+(?:\s*[,;]\s*S?\s*\d+)*\s*[\]】］])/i);
       parts.forEach((part) => {
-        if (part === '[[hl]]') { on = true; return; }
-        if (part === '[[/hl]]') { on = false; return; }
-        if (!part) return;
-        if (on) {
-          const m = document.createElement('mark');
-          m.textContent = part;
-          parent.appendChild(m);
+        const match = /^[\[【［]\s*(S\s*\d+(?:\s*[,;]\s*S?\s*\d+)*)\s*[\]】］]$/i.exec(part);
+        if (!match) {
+          if (part) appendInline(parent, part);
+          return;
+        }
+        const markers = match[1].match(/S?\s*\d+/gi) || [];
+        markers.forEach((raw) => {
+          const marker = 'S' + parseInt(String(raw).replace(/\D/g, ''), 10);
+          const citation = byMarker[marker];
+          if (!citation) {
+            parent.appendChild(document.createTextNode('[' + marker + ']'));
+            return;
+          }
+          const link = el('a', 'cite', marker);
+          link.href = docHref(citation);
+          link.title = (citation.document_title || citation.document_id)
+            + ' · page ' + citation.page_start
+            + (citation.page_end !== citation.page_start ? '–' + citation.page_end : '');
+          parent.appendChild(link);
+        });
+      });
+    }
+
+    /**
+     * Append text, turning **bold** into <strong>. Nothing else.
+     *
+     * Models emit light markdown whether or not the prompt asks for it, and
+     * literal asterisks around the key phrase of an answer look like a bug.
+     * This handles exactly one construct, and it still never parses HTML:
+     * every fragment goes in through createTextNode or an element's
+     * textContent, so a '<' inside a clause stays a '<'.
+     */
+    function appendInline(parent, text) {
+      String(text).split(/(\*\*[^*]+\*\*)/).forEach((chunk) => {
+        if (!chunk) return;
+        if (chunk.length > 4 && chunk.startsWith('**') && chunk.endsWith('**')) {
+          parent.appendChild(el('strong', null, chunk.slice(2, -2)));
         } else {
-          parent.appendChild(document.createTextNode(part));
+          parent.appendChild(document.createTextNode(chunk));
         }
       });
     }
 
-    function evidenceBlock() {
-      let box = document.getElementById('evidence');
-      if (!box) {
-        box = document.createElement('div');
-        box.className = 'evidence';
-        box.id = 'evidence';
-        thread.appendChild(box);
-      }
-      while (box.firstChild) box.removeChild(box.firstChild);
-      return box;
+    /** Turn the answer's blank-line / bullet structure into DOM nodes. */
+    function renderAnswer(bubble, answer, byMarker) {
+      const blocks = String(answer || '').split(/\n{2,}/);
+      blocks.forEach((block) => {
+        const lines = block.split('\n').filter((l) => l.trim());
+        if (!lines.length) return;
+        const bulleted = lines.every((l) => /^\s*[-*•]\s+/.test(l));
+        if (bulleted) {
+          const ul = el('ul');
+          lines.forEach((line) => {
+            const li = el('li');
+            renderWithCitations(li, line.replace(/^\s*[-*•]\s+/, ''), byMarker);
+            ul.appendChild(li);
+          });
+          bubble.appendChild(ul);
+        } else {
+          const p = el('p');
+          renderWithCitations(p, lines.join(' '), byMarker);
+          bubble.appendChild(p);
+        }
+      });
     }
 
-    function headed(box, title, sub) {
-      const h = document.createElement('h2');
-      h.textContent = title;
-      box.appendChild(h);
-      if (sub) {
-        const p = document.createElement('p');
-        p.className = 'sub';
-        p.textContent = sub;
-        box.appendChild(p);
-      }
+    function renderSources(bubble, citations) {
+      if (!citations.length) return;
+      const box = el('div', 'sources');
+      box.appendChild(el('h3', null, citations.length === 1 ? 'Source' : 'Sources'));
+      citations.forEach((c) => {
+        const row = el('div', 'srcrow');
+        row.appendChild(el('span', 'tagnum', c.marker || '—'));
+
+        const body = el('div', 'body');
+        const link = el('a', null,
+          (c.clause_number ? 'Clause ' + c.clause_number + ' — ' : '')
+          + (c.document_title || c.document_id));
+        link.href = docHref(c);
+        body.appendChild(link);
+
+        body.appendChild(el('div', 'where',
+          'page ' + c.page_start
+          + (c.page_end !== c.page_start ? '–' + c.page_end : '')
+          + ' · ' + c.clause_id
+          + (c.verification_status === 'STRICT_VERBATIM'
+            ? ' · quote verified against the stored text'
+            : ' · quote matched after whitespace normalisation')));
+
+        const quote = el('blockquote', null, c.quote + (c.quote_truncated ? '…' : ''));
+        body.appendChild(quote);
+        row.appendChild(body);
+        box.appendChild(row);
+      });
+      bubble.appendChild(box);
     }
 
-    async function findEvidence(question) {
-      const id = ++searchSeq;
-      const box = evidenceBlock();
-      headed(box, 'Looking for matching clauses\u2026', '');
-      stream.scrollTop = stream.scrollHeight;
+    /**
+     * The clauses retrieval found, when no answer was generated.
+     *
+     * Deliberately headed differently from "Sources": these were not used to
+     * answer anything, because nothing was answered. Calling them sources
+     * would imply an answer rests on them.
+     */
+    function renderFoundPassages(bubble, passages) {
+      const box = el('div', 'sources');
+      box.appendChild(el('h3', null, 'Clauses that matched your question'));
+      passages.slice(0, 4).forEach((p) => {
+        const row = el('div', 'srcrow');
+        row.appendChild(el('span', 'tagnum', String(p.rank)));
+        const body = el('div', 'body');
+        const link = el('a', null,
+          (p.clause_number ? 'Clause ' + p.clause_number + ' — ' : '')
+          + (p.document_title || p.document_id));
+        link.href = docHref(p);
+        body.appendChild(link);
+        body.appendChild(el('div', 'where',
+          'page ' + p.page_start
+          + (p.page_end !== p.page_start ? '–' + p.page_end : '')
+          + ' · ' + p.clause_id));
+        body.appendChild(el('blockquote', null,
+          p.text.length > 320 ? p.text.slice(0, 320) + '…' : p.text));
+        row.appendChild(body);
+        box.appendChild(row);
+      });
+      bubble.appendChild(box);
+    }
 
-      let payload;
+    function renderMeta(bubble, data) {
+      const row = el('div', 'pill-row');
+
+      if (data.generation_mode === 'llm') {
+        const model = data.generation_model ? ' · ' + data.generation_model : '';
+        row.appendChild(el('span', 'pill good', 'written by a language model' + model));
+      } else if (data.generation_mode === 'extractive') {
+        row.appendChild(el('span', 'pill warn', 'assembled from the source text — no language model configured'));
+      }
+
+      if ((data.retrieval_components || []).length) {
+        row.appendChild(el('span', 'pill',
+          data.retrieval_strategy === 'hybrid'
+            ? 'hybrid retrieval (keyword + meaning)'
+            : 'keyword retrieval'));
+      }
+      if (data.citations && data.citations.length) {
+        row.appendChild(el('span', 'pill good',
+          data.citations.length + ' verified citation' + (data.citations.length === 1 ? '' : 's')));
+      }
+      if (typeof data.took_ms === 'number') {
+        row.appendChild(el('span', 'pill', Math.round(data.took_ms) + ' ms'));
+      }
+      bubble.appendChild(row);
+
+      (data.warnings || []).forEach((w) => {
+        bubble.appendChild(el('div', 'warnbox', w));
+      });
+    }
+
+    /* ----------------------------------------------------------- the call */
+
+    async function ask(question) {
+      if (busy) return;
+      busy = true;
+      sendBtn.disabled = true;
+      input.disabled = true;
+      const id = ++askSeq;
+
+      addUserMessage(question);
+      const slot = addBotBubble('BodhSetu · thinking');
+      thinkingDots(slot.bubble);
+
+      let data = null;
+      let failure = null;
       try {
-        const response = await fetch('/api/search/clauses?'
-          + new URLSearchParams({ q: question, limit: '5', sort: 'relevance' }));
+        const response = await fetch('/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: question, top_k: 6 })
+        });
         if (!response.ok) {
           const body = await response.json().catch(() => null);
-          const message = body && body.error ? body.error.message : ('The search returned ' + response.status + '.');
-          throw new Error(message);
+          failure = (body && body.error && body.error.message)
+            || ('The assistant returned HTTP ' + response.status + '.');
+        } else {
+          data = await response.json();
         }
-        payload = await response.json();
       } catch (err) {
-        if (id !== searchSeq) return;
-        const failed = evidenceBlock();
-        headed(failed, 'Could not search the documents',
-          err && err.message ? err.message : 'The backend did not respond.');
+        failure = 'Could not reach the BodhSetu backend. Is the application running?';
+      } finally {
+        busy = false;
+        sendBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+      }
+
+      if (id !== askSeq) return;   // a newer question is already on screen
+
+      clear(slot.bubble);
+      if (failure) {
+        slot.meta.textContent = 'BodhSetu · could not answer';
+        slot.bubble.appendChild(el('p', null, failure));
+        scroll();
         return;
       }
 
-      if (id !== searchSeq) return;   // a newer question is already running
+      const byMarker = {};
+      (data.citations || []).forEach((c) => { if (c.marker) byMarker[c.marker] = c; });
 
-      const fresh = evidenceBlock();
-      if (!payload.items.length) {
-        headed(fresh, 'No clause in the collection matches those words',
-          'That is the honest answer: nothing was found, rather than something invented. '
-          + 'Try the words the document itself would use, or add the relevant policy document first.');
-        const link = document.createElement('a');
-        link.href = 'explore.html';
-        link.textContent = 'Browse the collection \u2192';
-        link.style.fontSize = '0.9rem';
-        fresh.appendChild(link);
+      slot.meta.textContent = data.sufficient_evidence
+        ? 'BodhSetu'
+        : 'BodhSetu · not answered from the documents';
+
+      renderAnswer(slot.bubble, data.answer, byMarker);
+      renderSources(slot.bubble, data.citations || []);
+      // No answer was generated, but retrieval still found clauses. Showing
+      // them is the useful, honest half: they are real stored text with real
+      // page references, clearly labelled as "found, not answered from".
+      if (!(data.citations || []).length && (data.passages || []).length) {
+        renderFoundPassages(slot.bubble, data.passages);
+      }
+      renderMeta(slot.bubble, data);
+      scroll();
+    }
+
+    /* --------------------------------------------------------- the status */
+
+    async function loadStatus() {
+      try {
+        const response = await fetch('/api/ask/status');
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        status = await response.json();
+      } catch (err) {
+        note.hidden = false;
+        document.getElementById('noteTitle').textContent = 'The assistant is not reachable';
+        document.getElementById('noteBody').textContent =
+          'The BodhSetu backend did not respond, so questions cannot be answered right now.';
         return;
       }
 
-      headed(fresh,
-        payload.items.length + ' matching clause' + (payload.items.length === 1 ? '' : 's') + ' in official documents',
-        'Found by keyword search over the stored clauses \u2014 not an assistant\u2019s answer. '
-        + 'Each one links to the document and page it is on.');
+      const corpus = status.corpus || {};
+      const gen = status.generation || {};
+      const ret = status.retrieval || {};
 
-      payload.items.forEach((hit) => {
-        const row = document.createElement('div');
-        row.className = 'hit';
+      if (!status.ready) {
+        note.hidden = false;
+        document.getElementById('noteTitle').textContent = 'There are no documents to answer from';
+        document.getElementById('noteBody').textContent =
+          'Add an official policy PDF through Add Document, and this assistant will answer from it.';
+        return;
+      }
 
-        const link = document.createElement('a');
-        link.href = 'document.html?document_id=' + encodeURIComponent(hit.document_id)
-          + '&version_id=' + encodeURIComponent(hit.version_id)
-          + '&clause_id=' + encodeURIComponent(hit.clause_id);
-        link.textContent = (hit.clause_number ? 'Clause ' + hit.clause_number + ' \u2014 ' : '') + hit.document_title;
-        row.appendChild(link);
+      if (gen.mode === 'extractive') {
+        // Stated up front rather than discovered after waiting for an answer.
+        note.hidden = false;
+        document.getElementById('noteTitle').textContent = 'No language model is configured';
+        document.getElementById('noteBody').textContent =
+          'Answers are assembled verbatim from the clauses that match your question, '
+          + 'with their sources, rather than written. Set NIYAMSETU_RAG_LLM_PROVIDER '
+          + 'and NIYAMSETU_RAG_LLM_API_KEY in .env to turn on generated answers.';
+      }
 
-        const where = document.createElement('div');
-        where.className = 'where';
-        where.textContent = 'page ' + hit.page_start
-          + (hit.page_end !== hit.page_start ? '\u2013' + hit.page_end : '')
-          + ' \u00b7 ' + (hit.department || 'authority not stated')
-          + (hit.reference_no ? ' \u00b7 ' + hit.reference_no : '');
-        row.appendChild(where);
+      const parts = [];
+      if (corpus.segments) {
+        parts.push(corpus.segments + ' clauses from '
+          + corpus.documents + ' document' + (corpus.documents === 1 ? '' : 's'));
+      }
+      if (ret.dense_state === 'loading') parts.push('semantic search is still loading');
+      if (parts.length) {
+        empty.textContent = 'Ask a question about the policy documents in the collection — '
+          + parts.join(' · ') + '.';
+      }
 
-        const snip = document.createElement('div');
-        snip.className = 'snip';
-        highlightInto(snip, hit.snippet || '');
-        row.appendChild(snip);
-
-        fresh.appendChild(row);
-      });
-
-      stream.scrollTop = stream.scrollHeight;
+      // The dense arm loads in the background; refresh the line once.
+      if (ret.dense_state === 'loading') {
+        setTimeout(loadStatus, 8000);
+      }
     }
 
-    // Question passed from user_home.html (URL or session storage)
-    const params = new URLSearchParams(window.location.search);
-    const first = (params.get('q') || params.get('question') || sessionStorage.getItem('bodhsetu_pending_question') || '').trim();
-    if (first) {
-      addMessage(first);
-      sessionStorage.removeItem('bodhsetu_pending_question');
-      findEvidence(first);
-    }
+    /* --------------------------------------------------------- the wiring */
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const q = input.value.trim();
       if (!q) return;
-      addMessage(q);
       input.value = '';
-      input.focus();
-      findEvidence(q);
+      ask(q);
     });
+
+    loadStatus();
+
+    // A question passed from user_home.html (URL or session storage).
+    const params = new URLSearchParams(window.location.search);
+    const first = (params.get('q') || params.get('question')
+      || sessionStorage.getItem('bodhsetu_pending_question') || '').trim();
+    if (first) {
+      sessionStorage.removeItem('bodhsetu_pending_question');
+      ask(first);
+    }
   </script>
 </body>
 
