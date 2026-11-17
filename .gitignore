@@ -57,3 +57,33 @@ data/processed/
 Thumbs.db
 .idea/
 .vscode/
+
+# Library & Search sample corpus: the PDFs and the regenerable pipeline output.
+# The manifest, the fetch log and sources.py ARE committed - they are the
+# provenance record and the only unregenerable part.
+data/sample_corpus/raw/
+data/sample_corpus/processed/
+
+# Compare version-pair corpus: the PDFs and the regenerable pipeline output.
+# The manifest, the fetch log and sources.py ARE committed - they are the
+# provenance record and the only unregenerable part. Same policy as the
+# sample corpus above.
+data/version_pairs/raw/
+data/version_pairs/processed/
+
+# Segment exports for teammates: the JSONL is regenerable from the database
+# plus backend/scripts/export_segments.py, and bulk extracted document text
+# does not belong in git (CLAUDE.md §16). The manifest and README ARE
+# committed - they are the provenance record, like data/manifest.csv.
+exports/*.jsonl
+
+# Recoverable backups taken before the 2026-11-16 integration cleanup.
+# pg_dump archives and copies of removed files: large, binary, and not source.
+# Recovery instructions are in
+# backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md section 11.
+backups/
+
+# What the running application ingests, kept out of the original corpus's
+# data/raw and data/processed on purpose (see that report, section 9.3).
+# Regenerable by re-uploading the source PDFs.
+data/app/

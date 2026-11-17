@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Bridging Policies. Connecting People.</title>
+  <meta name="description" content="Government rules and welfare schemes made easier for everyone. Understand policies in simple language.">
+
+  <style>
+    :root {
+      --ink: #14211c;
+      --muted: #5b6862;
+      --line: #dcdfd9;
+      --paper: #f7f6f1;
+      --accent: #1f5a45;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    nav { display: flex; gap: 22px; font-size: 0.95rem; }
+    nav a { color: var(--muted); font-weight: 500; text-decoration: none; padding: 4px 0; }
+    nav a:hover { color: var(--ink); }
+    nav a.active { color: var(--ink); font-weight: 600; border-bottom: 2px solid var(--accent); }
+
+    .right { display: flex; align-items: center; gap: 14px; }
+    select {
+      font: inherit;
+      font-size: 0.9rem;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .account-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .account-label {
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+    }
+
+    .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 14px; }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      line-height: 1.1;
+      margin-bottom: 18px;
+      max-width: 14em;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+
+    .lead { color: var(--muted); font-size: 1.1rem; max-width: 34em; margin-bottom: 32px; }
+
+    form { max-width: 640px; }
+    .row { display: flex; gap: 10px; }
+    input {
+      flex: 1;
+      min-width: 0;
+      height: 54px;
+      padding: 0 16px;
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+
+    .send {
+      height: 54px;
+      padding: 0 24px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .send:hover { background: #17473a; }
+
+    .suggest-label { margin: 22px 0 8px; color: var(--muted); font-size: 0.9rem; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 10px; max-width: 700px; }
+    .suggestions button {
+      font: inherit;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .suggestions button:hover { border-color: var(--accent); color: var(--accent); }
+
+    footer {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px 28px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 760px) {
+      nav { display: none; }
+      header { justify-content: flex-end; }
+    }
+    @media (max-width: 480px) {
+      .row { flex-direction: column; }
+      .send { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav aria-label="Main navigation">
+      <a href="user_home.html" class="active" aria-current="page">Home</a>
+      <a href="chat.html">Ask</a>
+      <a href="explore.html">Explore Policies</a>
+      <a href="updates.html">My Updates</a>
+      <a href="saved.html">Saved</a>
+      <a href="add-document.html">Add Document</a>
+    </nav>
+    <div class="right">
+      <select aria-label="Select language">
+        <option>English</option>
+        <option>हिन्दी</option>
+      </select>
+      <a class="account-pill" href="login.html" aria-label="Citizen account" title="Citizen account">
+        <span class="avatar" id="avatar">C</span>
+        <span class="account-label">Citizen account</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <p class="eyebrow">Bridging policies. Connecting people.</p>
+    <h1>Government rules, made <em>easier for everyone.</em></h1>
+    <p class="lead">Understand policies, discover schemes, and know what matters to you, in simple language.</p>
+    <p class="lead" id="corpus" aria-live="polite"></p>
+
+    <form id="form" novalidate>
+      <div class="row">
+        <input type="text" id="question" autocomplete="off" placeholder="Ask about a government rule or scheme..." aria-label="Ask about a government rule or scheme">
+        <button type="submit" class="send">Ask</button>
+      </div>
+    </form>
+
+    <p class="suggest-label">Or try one of these:</p>
+    <div class="suggestions">
+      <button type="button" data-prompt="Explain a government scheme">Explain a government scheme</button>
+      <button type="button" data-prompt="What does this notification mean?">What does this notification mean?</button>
+      <button type="button" data-prompt="Which documents do I need?">Which documents do I need?</button>
+    </div>
+  </main>
+
+  <footer>Answers grounded in official sources.</footer>
+
+  <script>
+    const form = document.getElementById('form');
+    const question = document.getElementById('question');
+
+    // Show the signed-in user's initial
+    try {
+      const user = JSON.parse(localStorage.getItem('bodhsetu_user') || sessionStorage.getItem('bodhsetu_user') || '{}');
+      const name = user.full_name || localStorage.getItem('bodhsetu_registered_name') || '';
+      if (name.trim()) document.getElementById('avatar').textContent = name.trim().charAt(0).toUpperCase();
+    } catch (err) {
+      console.warn('Could not read user profile', err);
+    }
+
+
+    // Real counts, read from the database. Nothing here is a placeholder: if
+    // the API cannot be reached the line says so rather than showing a number.
+    (async function corpusCounts() {
+      const node = document.getElementById('corpus');
+      try {
+        const response = await fetch('/api/library/facets');
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const f = await response.json();
+        const clauses = (f.segments && f.segments.clause_aware) || 0;
+        node.textContent = f.documents
+          ? `${f.documents} document${f.documents === 1 ? '' : 's'} · ${f.pages} pages · ${clauses} clauses in the collection right now.`
+          : 'No documents have been added yet. Use Add Document to upload an official policy PDF.';
+      } catch (err) {
+        node.textContent = 'The policy collection could not be reached — the backend may not be running.';
+      }
+    })();
+
+    function ask(text) {
+      const q = (text || '').trim();
+      if (!q) { question.focus(); return; }
+      try { sessionStorage.setItem('bodhsetu_pending_question', q); } catch (err) {}
+      window.location.href = 'chat.html?q=' + encodeURIComponent(q);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      ask(question.value);
+    });
+
+    document.querySelectorAll('.suggestions button').forEach(btn => {
+      btn.addEventListener('click', () => ask(btn.dataset.prompt));
+    });
+  </script>
+</body>
+</html>

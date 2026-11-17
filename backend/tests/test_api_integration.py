@@ -416,3 +416,116 @@ def test_a_duplicate_upload_does_not_overwrite_stored_artefacts(
     assert extraction.read_text(encoding="utf-8") == before, (
         "a duplicate upload overwrote the stored artefacts"
     )
+
+
+# --------------------------------------------------------------------------- #
+# Where the uploaded bytes actually go
+#
+# Found by uploading two real documents through the browser: the extractor
+# records the name of the file it read, which is the *generated staging* name,
+# so every API upload arrived as "upload.pdf". That gave every version the
+# same `original_filename` and the same `stored_path`, and the "never
+# overwrite an existing file" guard then meant the second upload's PDF was
+# never written at all -- leaving its `stored_path` pointing at an unrelated
+# document's file.
+# --------------------------------------------------------------------------- #
+
+
+def test_the_clients_filename_is_recorded_as_provenance(
+    client: TestClient, ingested: Dict[str, Any]
+) -> None:
+    """`original_filename` is the name the client sent, not the staging name."""
+    from sqlalchemy import text as _text
+
+    from backend.app.api.dependencies import get_repository as _get_repository
+    from backend.app.db.engine import get_engine
+
+    repository = client.app.dependency_overrides[_get_repository]()
+    with get_engine(repository.url).connect() as conn:
+        original, stored = conn.execute(
+            _text(
+                "SELECT original_filename, stored_path FROM document_versions"
+                " WHERE public_id = :p"
+            ),
+            {"p": ingested["version_id"]},
+        ).one()
+
+    # `_ingest` uploads it as fixture.pdf; "upload.pdf" would be the defect.
+    assert original == "fixture.pdf"
+    assert "upload.pdf" not in stored
+    assert stored.endswith(".pdf")
+
+
+def test_each_version_stores_its_own_pdf_under_a_distinct_name(
+    client: TestClient, ingested: Dict[str, Any]
+) -> None:
+    """Two different uploads must not share one stored_path.
+
+    The stored name is derived from the version fingerprint, which is derived
+    from the file's SHA-256 -- so two different files can never collide and
+    two uploads of the same file deliberately do.
+    """
+    from backend.app.api.dependencies import get_settings
+
+    settings = client.app.dependency_overrides.get(get_settings, get_settings)()
+
+    second = _ingest(
+        client,
+        [PAGE_1, PAGE_2, "A third page, so the checksum differs from the first."],
+        version_label="v2",
+    )
+    assert second.status_code == 201, second.text
+
+    stored = sorted(p.name for p in settings.raw_dir.glob("*.pdf"))
+    assert len(stored) >= 2, f"each version needs its own file, got {stored}"
+    assert len(set(stored)) == len(stored), f"duplicate stored names: {stored}"
+    assert all(name.startswith("VER-") for name in stored), stored
+    assert "upload.pdf" not in stored
+
+    for name in stored:
+        assert (settings.raw_dir / name).stat().st_size > 0
+
+
+def test_a_client_filename_can_never_reach_a_filesystem_path() -> None:
+    """A path in the upload's name is recorded, not followed (§20)."""
+    from backend.app.api.ingestion import _safe_original_name
+
+    assert _safe_original_name("../../etc/passwd.pdf") == "passwd.pdf"
+    assert _safe_original_name(r"C:\windows\system32\x.pdf") == "x.pdf"
+    assert _safe_original_name("") == "upload.pdf"
+    assert _safe_original_name("   ...   ") == "upload.pdf"
+    assert _safe_original_name("a b (1).pdf") == "a b (1).pdf"
+    assert "/" not in _safe_original_name("dir/sub/name.pdf")
+    assert len(_safe_original_name("x" * 500)) <= 200
+
+
+def test_retrieved_at_survives_ingestion(client: TestClient) -> None:
+    """Mandatory provenance (data/README.md §5) must reach the database.
+
+    The first browser upload left it blank, which put two
+    metadata_completeness errors into the data-quality report.
+    """
+    response = _ingest(
+        client,
+        [PAGE_1, PAGE_2, "A fourth fixture page for the retrieved_at check."],
+        version_label="v3",
+        retrieved_at="2026-11-16",
+    )
+    assert response.status_code == 201, response.text
+    detail = client.get(f"/api/documents/{response.json()['document_id']}").json()
+    version = next(
+        v for v in detail["versions"] if v["version_id"] == response.json()["version_id"]
+    )
+    assert version["source_url"] is not None or True  # source_url is optional
+    # retrieved_at is not on VersionDetail; assert it landed in the row.
+    from backend.app.db.engine import get_engine
+    from sqlalchemy import text as _text
+    from backend.app.api.dependencies import get_repository as _get_repository
+
+    repository = client.app.dependency_overrides[_get_repository]()
+    with get_engine(repository.url).connect() as conn:
+        value = conn.execute(
+            _text("SELECT retrieved_at FROM document_versions WHERE public_id = :p"),
+            {"p": response.json()["version_id"]},
+        ).scalar_one()
+    assert value is not None

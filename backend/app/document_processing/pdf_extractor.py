@@ -417,6 +417,9 @@ def extract_pdf(
     return ExtractionResult(document=document, pages=pages)
 
 
+OK_MEANINGFUL_PAGE_FRACTION = 0.9
+
+
 def _derive_status(pages: List[PageRecord]) -> str:
     """Map per-page outcomes onto the version-level ``extraction_status``.
 
@@ -428,7 +431,10 @@ def _derive_status(pages: List[PageRecord]) -> str:
     meaningful = sum(1 for page in pages if page.has_meaningful_text)
     if meaningful == 0:
         return STATUS_FAILED
-    if meaningful < len(pages):
+    # A cover, signature or stamp-only page is normal in a real policy PDF; one
+    # of those must not hide the other 35 pages from Ask and Library. The
+    # per-page warnings are still recorded. Below 90% it is genuinely partial.
+    if meaningful < len(pages) * OK_MEANINGFUL_PAGE_FRACTION:
         return STATUS_PARTIAL
     return STATUS_OK
 

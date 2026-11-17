@@ -11,10 +11,12 @@ the separation that matters actually is.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, Request, Response, UploadFile, status
+from sqlalchemy import text
 
+from backend.app.api.auth import get_current_user, get_user_document_ids
 from backend.app.api.dependencies import (
     Repository,
     Settings,
@@ -33,6 +35,8 @@ from backend.app.api.schemas import (
     IngestResponse,
     PageListResponse,
 )
+from backend.app.db.delete import delete_document_by_id
+from backend.app.db.engine import connection
 
 __all__ = ["health_router", "documents_router"]
 
@@ -45,6 +49,21 @@ ERROR_RESPONSES = {
 
 health_router = APIRouter(tags=["health"])
 documents_router = APIRouter(prefix="/documents", tags=["documents"])
+
+
+def _document_scope_contact(request: Request, user_contact: Optional[str]) -> Optional[str]:
+    """Return the authenticated user if the caller is logged in.
+
+    This preserves the legacy API behaviour for unauthenticated requests while
+    ensuring any user-scoped document access is bound to the session when a
+    valid token is present.
+    """
+    current = get_current_user(request)
+    if current is not None:
+        return current.contact
+    if user_contact and user_contact.strip():
+        return user_contact.strip().lower()
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -119,6 +138,7 @@ async def ingest(
     publication_date: Optional[str] = Form(None),
     source_url: Optional[str] = Form(None),
     retrieved_at: Optional[str] = Form(None),
+    user_contact: Optional[str] = Form(None),
     settings: Settings = Depends(get_settings),
     repository: Repository = Depends(get_repository),
 ) -> IngestResponse:
@@ -177,6 +197,20 @@ async def ingest(
         # client deciding whether it just added to the corpus.
         response.status_code = status.HTTP_200_OK
 
+    if user_contact and outcome.document_public_id:
+        try:
+            with connection(repository.url) as conn:
+                conn.execute(
+                    text(
+                        "INSERT INTO user_documents (user_contact, document_public_id) "
+                        "VALUES (:c, :p) ON CONFLICT DO NOTHING"
+                    ),
+                    {"c": user_contact.strip().lower(), "p": outcome.document_public_id},
+                )
+                conn.commit()
+        except Exception:
+            pass
+
     return IngestResponse(
         status=outcome.status,  # type: ignore[arg-type]
         document_id=outcome.document_public_id,
@@ -205,9 +239,22 @@ async def ingest(
     responses=ERROR_RESPONSES,
 )
 def list_documents(
+    request: Request,
     q: Optional[str] = Query(None, description="Substring of title or reference no."),
-    department: Optional[str] = Query(None),
+    department: Optional[str] = Query(
+        None, description="Exact match. Pass 'null' for documents with none stated."
+    ),
     document_type: Optional[str] = Query(None),
+    date_from: Optional[str] = Query(
+        None, description="ISO date. Matches documents with any version on or after it."
+    ),
+    date_to: Optional[str] = Query(None, description="ISO date, inclusive."),
+    user_contact: Optional[str] = Query(None, description="Filter documents belonging to this user."),
+    sort: str = Query(
+        "public_id",
+        pattern="^(public_id|title|title_desc|date_desc|date_asc|recent)$",
+        description="Every order tie-breaks on document_id, so pagination is stable.",
+    ),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     repository: Repository = Depends(get_repository),
@@ -217,15 +264,72 @@ def list_documents(
     Returns metadata only -- no page text and no segments. The counts come
     from an aggregate, so listing a 37-page document costs the same as listing
     a 2-page one.
+
+    ``date_from``, ``date_to`` and ``sort`` were added for the Library view.
+    They are additive (§12.4): omitting them reproduces the original
+    behaviour exactly, so no existing consumer is affected. The Library UI
+    browses through this endpoint rather than a second listing of its own.
     """
+    _check_iso_dates(date_from, date_to)
     payload = repository.list_documents(
         q=q,
         department=department,
         document_type=document_type,
+        date_from=date_from,
+        date_to=date_to,
+        sort=sort,
         limit=limit,
         offset=offset,
     )
+    scoped_contact = _document_scope_contact(request, user_contact)
+    if scoped_contact:
+        try:
+            with connection(repository.url) as conn:
+                rows = conn.execute(
+                    text("SELECT document_public_id FROM user_documents WHERE LOWER(user_contact) = :c"),
+                    {"c": scoped_contact.lower()},
+                ).fetchall()
+                allowed_ids = {r[0] for r in rows}
+                items = [item for item in payload.get("items", []) if item["document_id"] in allowed_ids]
+                return DocumentListResponse(
+                    total=len(items),
+                    limit=limit,
+                    offset=offset,
+                    items=items,
+                )
+        except Exception:
+            pass
     return DocumentListResponse(**payload)
+
+
+def _check_iso_dates(date_from: Optional[str], date_to: Optional[str]) -> None:
+    """Reject a malformed date here rather than letting SQL raise.
+
+    An unparseable date reaching PostgreSQL is a ``DataError``, which the
+    catch-all handler turns into a 500 -- an internal error for what is
+    plainly a bad request.
+    """
+    from datetime import date as _date
+
+    for name, value in (("date_from", date_from), ("date_to", date_to)):
+        if value is None:
+            continue
+        try:
+            _date.fromisoformat(value)
+        except ValueError:
+            raise ApiError(
+                "VALIDATION_ERROR",
+                f"{name} must be an ISO-8601 date (YYYY-MM-DD), got {value!r}.",
+                status.HTTP_422_UNPROCESSABLE_CONTENT,
+                {name: value},
+            ) from None
+    if date_from and date_to and date_from > date_to:
+        raise ApiError(
+            "VALIDATION_ERROR",
+            "date_from must not be later than date_to.",
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            {"date_from": date_from, "date_to": date_to},
+        )
 
 
 @documents_router.get(
@@ -235,6 +339,7 @@ def list_documents(
     responses=ERROR_RESPONSES,
 )
 def get_document(
+    request: Request,
     document_id: str,
     repository: Repository = Depends(get_repository),
 ) -> DocumentDetail:
@@ -244,6 +349,15 @@ def get_document(
     offset basis, processing warnings and per-method segment counts -- enough
     for a consumer to decide whether to trust it before fetching any text.
     """
+    current = get_current_user(request)
+    if current is not None:
+        allowed = get_user_document_ids(current.contact, repository.url)
+        if document_id not in allowed:
+            raise ApiError(
+                "DOCUMENT_NOT_FOUND",
+                f"Document '{document_id}' was not found for the current user.",
+                status.HTTP_404_NOT_FOUND,
+            )
     return DocumentDetail(**repository.get_document(document_id))
 
 
@@ -254,6 +368,7 @@ def get_document(
     responses=ERROR_RESPONSES,
 )
 def get_pages(
+    request: Request,
     document_id: str,
     version_id: Optional[str] = Query(
         None, description="Defaults to the latest version with extraction_status='ok'."
@@ -279,6 +394,15 @@ def get_pages(
     paginate the filtered result. Both exist because they answer different
     questions -- "pages 3-5 of this document" and "the next 50 pages".
     """
+    current = get_current_user(request)
+    if current is not None:
+        allowed = get_user_document_ids(current.contact, repository.url)
+        if document_id not in allowed:
+            raise ApiError(
+                "DOCUMENT_NOT_FOUND",
+                f"Document '{document_id}' was not found for the current user.",
+                status.HTTP_404_NOT_FOUND,
+            )
     if page_from is not None and page_to is not None and page_to < page_from:
         raise ApiError(
             "VALIDATION_ERROR",
@@ -316,6 +440,7 @@ def get_pages(
     responses=ERROR_RESPONSES,
 )
 def get_clauses(
+    request: Request,
     document_id: str,
     version_id: Optional[str] = Query(None),
     method: str = Query(
@@ -344,6 +469,15 @@ def get_clauses(
     ranges index into. It is ``normalized_text`` (D-11), and a consumer that
     slices a different field will get the wrong span.
     """
+    current = get_current_user(request)
+    if current is not None:
+        allowed = get_user_document_ids(current.contact, repository.url)
+        if document_id not in allowed:
+            raise ApiError(
+                "DOCUMENT_NOT_FOUND",
+                f"Document '{document_id}' was not found for the current user.",
+                status.HTTP_404_NOT_FOUND,
+            )
     if page_from is not None and page_to is not None and page_to < page_from:
         raise ApiError(
             "VALIDATION_ERROR",
@@ -392,3 +526,39 @@ def get_clauses(
         offset=offset,
         items=matching[offset : offset + limit],
     )
+
+
+@documents_router.delete(
+    "/{document_id}",
+    summary="Delete a document and all its versions from the database",
+    responses=ERROR_RESPONSES,
+    include_in_schema=False,
+)
+def delete_document(
+    request: Request,
+    document_id: str,
+    repository: Repository = Depends(get_repository),
+) -> Dict[str, Any]:
+    """Delete a document and its associated versions and segments completely."""
+    current = get_current_user(request)
+    if current is not None:
+        allowed = get_user_document_ids(current.contact, repository.url)
+        if document_id not in allowed:
+            raise ApiError(
+                "FORBIDDEN",
+                f"Document '{document_id}' is not owned by the current user.",
+                status.HTTP_403_FORBIDDEN,
+            )
+    success = delete_document_by_id(document_id, repository.url)
+    if not success:
+        raise ApiError(
+            "NOT_FOUND",
+            f"Document '{document_id}' was not found.",
+            status.HTTP_404_NOT_FOUND,
+        )
+    return {
+        "success": True,
+        "message": f"Document '{document_id}' deleted successfully.",
+        "document_id": document_id,
+    }
+

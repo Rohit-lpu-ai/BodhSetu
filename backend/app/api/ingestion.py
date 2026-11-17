@@ -101,6 +101,20 @@ class IngestionResult:
     warnings: list
 
 
+def _safe_original_name(name: str) -> str:
+    """The client's filename, reduced to something safe to *record*.
+
+    Recorded only -- ``stored_path`` uses the generated name instead. Even so
+    this is stripped of any directory part and of separators, because a value
+    that reaches a database column and then a log line and then somebody's
+    script should not contain a path at all.
+    """
+    cleaned = (name or "").replace("\\", "/").rsplit("/", 1)[-1].strip()
+    cleaned = "".join(ch for ch in cleaned if ch.isprintable() and ch not in '<>:"|?*')
+    cleaned = cleaned.strip(". ")
+    return cleaned[:200] or "upload.pdf"
+
+
 def ingest_pdf_bytes(
     request: IngestionRequest,
     *,
@@ -136,6 +150,23 @@ def ingest_pdf_bytes(
         document = payload["document"]
         version_fingerprint = str(document["version_id"])
 
+        # The extractor records the name of the file it read, which is the
+        # generated staging name -- so every API upload used to arrive as
+        # "upload.pdf": the same original_filename for every document, and
+        # the same stored_path, which the "never overwrite" guard below then
+        # turned into *silently not storing the file at all* from the second
+        # upload onwards. A version then pointed at a completely unrelated
+        # PDF. Found by ingesting two documents through the browser.
+        #
+        # So: `filename` becomes the name the client actually sent (recorded
+        # as provenance, never used as a path), and `stored_filename` is the
+        # generated, collision-free name the bytes are written under. The
+        # fingerprint is derived from the file's own SHA-256, so two uploads
+        # of different files can never share it, and two uploads of the SAME
+        # file deliberately do.
+        document["filename"] = _safe_original_name(request.filename)
+        document["stored_filename"] = f"{version_fingerprint}.pdf"
+
         # Both segmentation methods, plus the reversible cleaning report.
         results, cleaning_report = segment_extraction(payload)
 
@@ -164,7 +195,7 @@ def ingest_pdf_bytes(
         # provenance link. Never overwrite an existing one, for the same
         # reason the artefacts are not overwritten.
         raw_dir.mkdir(parents=True, exist_ok=True)
-        stored_pdf = raw_dir / str(document["filename"])
+        stored_pdf = raw_dir / str(document["stored_filename"])
         if not stored_pdf.exists():
             shutil.copyfile(staged, stored_pdf)
 

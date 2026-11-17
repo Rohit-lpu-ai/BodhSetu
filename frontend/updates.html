@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — My Updates</title>
+  <meta name="description" content="What changed between two issues of a policy: clause by clause, with the source of every change.">
+  <link rel="stylesheet" href="assets/bodhsetu.css">
+  <style>
+    .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    .side { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+    .side h5 { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .side .body { white-space: pre-wrap; word-break: break-word; font-size: 0.9rem; }
+    .side.empty .body { color: var(--muted); font-style: italic; }
+    .summary-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .sum { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; min-width: 96px; }
+    .sum .n { font-family: Georgia, "Times New Roman", serif; font-size: 1.5rem; line-height: 1.1; }
+    .sum .k { color: var(--muted); font-size: 0.8rem; }
+    .sum.added .n { color: var(--added); }
+    .sum.removed .n { color: var(--removed); }
+    .sum.modified .n { color: var(--modified); }
+    .diff { margin-top: 10px; font-size: 0.9rem; white-space: pre-wrap; word-break: break-word;
+            background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; align-items: center; }
+    .evidence-panel { position: sticky; top: 16px; }
+    @media (max-width: 760px) { .sides { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="site wide" id="main">
+    <p class="eyebrow">Bridging policies. Connecting people.</p>
+    <h1 class="display">What <em>changed.</em></h1>
+    <p class="lead">Pick a policy and two of its issues. Every clause is reported as added, removed, modified or unchanged — and every side of every change shows the page and character range it was read from.</p>
+
+    <div class="panel" style="margin-bottom:18px">
+      <div class="row wrap" style="gap:12px;align-items:flex-end">
+        <div class="grow">
+          <label for="fDocument">Policy</label>
+          <select id="fDocument" class="compact"></select>
+        </div>
+        <div class="grow">
+          <label for="fBase">Older issue</label>
+          <select id="fBase" class="compact"></select>
+        </div>
+        <div class="grow">
+          <label for="fCompare">Newer issue</label>
+          <select id="fCompare" class="compact"></select>
+        </div>
+        <div>
+          <button type="button" id="run">Compare</button>
+        </div>
+      </div>
+      <p class="hint" id="pairHint"></p>
+      <div id="pairNote"></div>
+    </div>
+
+    <div id="emptyPanel">
+      <div class="note">
+        <h2>Choose two issues to compare</h2>
+        <p>Only versions that extracted cleanly are offered: a partial extraction can lose a clause, and a lost clause would be reported as a removal — an extraction defect shown to you as a policy change.</p>
+      </div>
+    </div>
+
+    <div id="resultPanel" hidden>
+      <div class="summary-grid" id="summary"></div>
+
+      <div class="filters">
+        <button type="button" class="pill" data-change="added" aria-pressed="true">Added</button>
+        <button type="button" class="pill" data-change="removed" aria-pressed="true">Removed</button>
+        <button type="button" class="pill" data-change="modified" aria-pressed="true">Modified</button>
+        <button type="button" class="pill" data-change="unchanged" aria-pressed="false">Unchanged</button>
+        <button type="button" class="pill" id="onlyAmbiguous" aria-pressed="false">Only uncertain matches</button>
+        <span class="meta" id="runState" style="margin-left:auto"></span>
+      </div>
+
+      <div class="split-wide">
+        <section>
+          <div id="changes"></div>
+          <div class="pager" id="pager" hidden>
+            <button type="button" class="ghost" id="more">Load more</button>
+            <span class="meta" id="pagerMeta"></span>
+          </div>
+        </section>
+        <aside>
+          <div class="panel evidence-panel" id="evidencePanel" hidden>
+            <div class="row keep" style="justify-content:space-between;align-items:baseline">
+              <h3 id="evidenceTitle">Evidence</h3>
+              <button type="button" class="link" id="evidenceClose">Close</button>
+            </div>
+            <div id="evidenceBody"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/api.js"></script>
+  <script>
+    mountHeader('updates');
+    mountFooter('A change is only shown with the page and character range it was read from.');
+
+    const seq = new Sequencer();
+    const state = {
+      options: null,
+      documentId: param('document_id'),
+      current: null,
+      offset: 0,
+      limit: 50,
+      running: false,
+      rerunQueued: false,
+      changeTypes: new Set(['added', 'removed', 'modified']),
+      onlyAmbiguous: false,
+    };
+
+    /* -------------------------------------------------------------- options */
+
+    async function loadOptions() {
+      let payload;
+      try {
+        payload = await apiGet('/compare/options', { include_single_version: true });
+      } catch (err) {
+        showError($('emptyPanel'), err, 'the comparable versions');
+        return;
+      }
+      state.options = payload;
+
+      const picker = $('fDocument');
+      clear(picker);
+      if (!payload.documents.length) {
+        clear($('emptyPanel'));
+        $('emptyPanel').appendChild(noteNode(
+          null,
+          'Nothing to compare yet',
+          'Comparison needs two issues of the same policy. Add documents with Add Document, giving both issues the same document group, and they will appear here.'
+        ));
+        const link = el('a', 'btn', 'Add a document');
+        link.href = 'add-document.html';
+        $('emptyPanel').appendChild(link);
+        $('run').disabled = true;
+        return;
+      }
+
+      payload.documents.forEach((doc) => {
+        const option = el('option', null,
+          `${doc.title} (${plural(doc.version_count, 'version')})`);
+        option.value = doc.document_id;
+        option.disabled = doc.pairs.length === 0;
+        picker.appendChild(option);
+      });
+
+      const comparable = payload.documents.filter((doc) => doc.pairs.length);
+      if (!comparable.length) {
+        $('pairHint').textContent = 'Every document in the collection has only one issue, so there is no pair to compare.';
+        $('run').disabled = true;
+      }
+
+      const wanted = state.documentId && payload.documents.some((d) => d.document_id === state.documentId)
+        ? state.documentId
+        : (comparable.length ? comparable[0].document_id : payload.documents[0].document_id);
+      picker.value = wanted;
+      state.documentId = wanted;
+      fillVersions();
+    }
+
+    function currentDocument() {
+      return (state.options.documents || []).find((d) => d.document_id === state.documentId);
+    }
+
+    function fillVersions() {
+      const doc = currentDocument();
+      const base = $('fBase');
+      const compare = $('fCompare');
+      clear(base);
+      clear(compare);
+      if (!doc) return;
+
+      doc.versions.forEach((version) => {
+        [base, compare].forEach((select) => {
+          const option = el('option', null,
+            `${version.version_label} · ${fmtDate(version.publication_date)} · ${plural(version.clause_count, 'clause')}`);
+          option.value = version.version_id;
+          select.appendChild(option);
+        });
+      });
+
+      if (doc.pairs.length) {
+        // Default to the pair the publisher itself declared, when there is one.
+        const declared = doc.pairs.find((p) => p.supersedes_declared) || doc.pairs[0];
+        base.value = declared.base_version_id;
+        compare.value = declared.compare_version_id;
+        $('run').disabled = false;
+      } else {
+        $('run').disabled = true;
+      }
+      describePair();
+    }
+
+    function describePair() {
+      const doc = currentDocument();
+      const node = $('pairNote');
+      clear(node);
+      $('pairHint').textContent = '';
+      if (!doc) return;
+
+      if (!doc.pairs.length) {
+        node.appendChild(noteNode(
+          null,
+          'This policy has only one issue',
+          'There is nothing to compare it against yet. Add a second issue under the same document group.'
+        ));
+        return;
+      }
+
+      const pair = doc.pairs.find((p) =>
+        p.base_version_id === $('fBase').value && p.compare_version_id === $('fCompare').value);
+
+      if ($('fBase').value === $('fCompare').value) {
+        // The API rejects this with a 422 rather than returning an
+        // all-unchanged result, so the button is disabled instead of letting
+        // the user press it and read an error.
+        $('pairHint').textContent =
+          'Both sides are the same issue. Choose two different issues — a version cannot be compared with itself.';
+        $('run').disabled = true;
+        return;
+      }
+      $('run').disabled = false;
+      if (!pair) {
+        $('pairHint').textContent =
+          'This ordering is not one the stored corpus declares. The comparison will still run, but the older/newer direction is your assertion, not the publisher’s.';
+        return;
+      }
+      $('pairHint').textContent = pair.supersedes_declared
+        ? 'The newer issue’s own metadata names the older one as the issue it supersedes — the version order is the publisher’s, not inferred.'
+        : 'These two issues are comparable. The version order comes from their recorded publication dates, not from a declaration in the documents.';
+    }
+
+    /* ------------------------------------------------------------ comparison */
+
+    function buildRequest(offset) {
+      return {
+        base_version_id: $('fBase').value,
+        compare_version_id: $('fCompare').value,
+        method: 'clause_aware',
+        change_types: Array.from(state.changeTypes),
+        only_ambiguous: state.onlyAmbiguous,
+        include_text: true,
+        include_diff: true,
+        include_explanation: true,
+        limit: state.limit,
+        offset: offset,
+      };
+    }
+
+    /**
+     * Run a comparison and render it.
+     *
+     * Two rules, both carried over from the Compare preview because a browser
+     * session found them the hard way:
+     *   - a filter change arriving mid-flight is queued, never dropped;
+     *   - a response whose sequence id is no longer current never renders.
+     */
+    async function runComparison(offset) {
+      if (!$('fBase').value || !$('fCompare').value) return;
+      if (state.running) {
+        if (offset === 0) state.rerunQueued = true;
+        return;
+      }
+      state.running = true;
+      const id = seq.next();
+      const append = offset > 0;
+      $('runState').textContent = append ? 'loading more…' : 'comparing…';
+      $('run').disabled = true;
+      if (!append) showSkeleton($('changes'), 3);
+
+      let payload;
+      try {
+        payload = await apiPost('/compare', buildRequest(offset));
+      } catch (err) {
+        if (seq.isCurrent(id)) {
+          $('runState').textContent = '';
+          // Clear the old summary first: an error under last run's counts
+          // reads as "the comparison you are looking at failed", which is
+          // not what happened.
+          clear($('summary'));
+          state.current = null;
+          $('pager').hidden = true;
+          showError($('changes'), err, 'the comparison');
+          $('resultPanel').hidden = false;
+          $('emptyPanel').hidden = true;
+        }
+        return;
+      } finally {
+        state.running = false;
+        $('run').disabled = false;
+        if (state.rerunQueued) {
+          state.rerunQueued = false;
+          setTimeout(() => runComparison(0), 0);
+        }
+      }
+
+      if (!seq.isCurrent(id)) return;
+
+      state.offset = offset;
+      if (append && state.current) {
+        state.current.items = state.current.items.concat(payload.items);
+        state.current.total = payload.total;
+        renderChanges(state.current, payload.total);
+      } else {
+        state.current = payload;
+        renderSummary(payload);
+        renderChanges(payload, payload.total);
+      }
+      $('runState').textContent = `${payload.took_ms.toFixed(0)} ms`;
+      $('emptyPanel').hidden = true;
+      $('resultPanel').hidden = false;
+    }
+
+    /** Forget a displayed comparison whose selection no longer matches it. */
+    function invalidate() {
+      seq.invalidate();
+      state.current = null;
+      state.offset = 0;
+      state.rerunQueued = false;
+      clear($('changes'));
+      // The summary is the part that names the two issues. Leaving it on
+      // screen under a changed picker is precisely the stale-result defect:
+      // a diff of one pair sitting beneath a selector describing another.
+      clear($('summary'));
+      $('resultPanel').hidden = true;
+      $('emptyPanel').hidden = false;
+      $('evidencePanel').hidden = true;
+      $('runState').textContent = '';
+    }
+
+    /* -------------------------------------------------------------- rendering */
+
+    function renderSummary(payload) {
+      const box = $('summary');
+      clear(box);
+      const counts = payload.summary.counts || {};
+      [
+        ['added', 'added'],
+        ['removed', 'removed'],
+        ['modified', 'modified'],
+        ['unchanged', 'unchanged'],
+      ].forEach(([key, label]) => {
+        const sum = el('div', 'sum ' + key);
+        sum.appendChild(el('div', 'n', counts[key] === undefined ? '—' : counts[key]));
+        sum.appendChild(el('div', 'k', label));
+        box.appendChild(sum);
+      });
+
+      const extra = el('div', 'sum');
+      extra.appendChild(el('div', 'n', payload.summary.matched_pairs));
+      extra.appendChild(el('div', 'k', 'matched pairs'));
+      box.appendChild(extra);
+
+      if (payload.summary.ambiguous_matches) {
+        const amb = el('div', 'sum');
+        amb.appendChild(el('div', 'n', payload.summary.ambiguous_matches));
+        amb.appendChild(el('div', 'k', 'uncertain'));
+        box.appendChild(amb);
+      }
+
+      const heads = el('div', 'panel');
+      heads.style.width = '100%';
+      const rows = [
+        ['Older issue', `${payload.base_version.version_label} · ${fmtDate(payload.base_version.publication_date)} · ${payload.base_version.version_id}`],
+        ['Newer issue', `${payload.compare_version.version_label} · ${fmtDate(payload.compare_version.publication_date)} · ${payload.compare_version.version_id}`],
+        ['Policy', payload.base_version.document_title],
+        ['Reference no.', orDash(payload.base_version.document_reference_no)],
+        ['Renumbered (not a change)', String(payload.summary.renumbered_matches)],
+        ['Reordered (not a change)', String(payload.summary.reordered_matches)],
+      ];
+      const dl = el('dl', 'meta-grid');
+      rows.forEach(([key, value]) => {
+        dl.appendChild(el('dt', null, key));
+        dl.appendChild(el('dd', null, value));
+      });
+      heads.appendChild(dl);
+      if (payload.summary.similarity_mean_note) {
+        heads.appendChild(el('p', 'meta', payload.summary.similarity_mean_note));
+      }
+      box.appendChild(heads);
+
+      (payload.warnings || []).forEach((warning) => {
+        box.appendChild(noteNode(null, 'Note', warning));
+      });
+    }
+
+    function renderChanges(payload, total) {
+      const list = $('changes');
+      clear(list);
+
+      if (!payload.items.length) {
+        list.appendChild(noteNode(
+          null,
+          'No changes of the selected kinds',
+          `The comparison produced ${payload.total_unfiltered} change${payload.total_unfiltered === 1 ? '' : 's'} in total; none match the current filters.`
+        ));
+        $('pager').hidden = true;
+        return;
+      }
+
+      payload.items.forEach((change) => list.appendChild(changeCard(change)));
+
+      $('pager').hidden = payload.items.length >= total;
+      $('pagerMeta').textContent = `${payload.items.length} of ${total} shown`;
+    }
+
+    function changeCard(change) {
+      const card = el('div', 'card');
+
+      const head = el('div', 'row keep');
+      head.style.justifyContent = 'space-between';
+      head.style.alignItems = 'baseline';
+      const label = (change.new && change.new.clause_number) || (change.old && change.old.clause_number);
+      const heading = el('h3', null,
+        (label ? 'Clause ' + label : (change.change_id || 'Change')));
+      head.appendChild(heading);
+      head.appendChild(el('span', 'tag ' + change.change_type, change.change_type));
+      card.appendChild(head);
+
+      const tags = el('div', 'tags');
+      tags.appendChild(el('span', 'tag', 'confidence: ' + change.confidence));
+      if (change.similarity !== null && change.similarity !== undefined) {
+        tags.appendChild(el('span', 'tag', 'similarity ' + change.similarity.toFixed(2)));
+      }
+      if (change.match_basis) tags.appendChild(el('span', 'tag', 'matched on ' + change.match_basis));
+      if (change.ambiguous) {
+        tags.appendChild(el('span', 'tag modified', 'uncertain match'));
+        if (change.runner_up_clause_id) {
+          tags.appendChild(el('span', 'tag', 'nearly matched ' + change.runner_up_clause_id));
+        }
+      }
+      if (change.renumbered) tags.appendChild(el('span', 'tag', 'renumbered only'));
+      if (change.reordered) tags.appendChild(el('span', 'tag', 'moved'));
+      card.appendChild(tags);
+
+      if (change.explanation) card.appendChild(el('p', 'meta', change.explanation));
+
+      const sides = el('div', 'sides');
+      sides.appendChild(sideBox('Older issue', change.old));
+      sides.appendChild(sideBox('Newer issue', change.new));
+      card.appendChild(sides);
+
+      if (change.word_diff && change.word_diff.length) {
+        const diff = el('div', 'diff');
+        change.word_diff.forEach((run) => {
+          if (run.op === 'equal') diff.appendChild(document.createTextNode(run.old + ' '));
+          else if (run.op === 'delete') diff.appendChild(el('del', null, run.old + ' '));
+          else if (run.op === 'insert') diff.appendChild(el('ins', null, run.new + ' '));
+          else {
+            diff.appendChild(el('del', null, run.old + ' '));
+            diff.appendChild(el('ins', null, run.new + ' '));
+          }
+        });
+        card.appendChild(diff);
+        if (change.diff_stats) {
+          card.appendChild(el('p', 'meta',
+            `${change.diff_stats.words_added} words added · ${change.diff_stats.words_removed} removed · `
+            + `${(change.diff_stats.token_overlap * 100).toFixed(0)}% token overlap`));
+        }
+      }
+
+      (change.notes || []).forEach((note) => card.appendChild(el('p', 'meta', note)));
+      return card;
+    }
+
+    function sideBox(label, side) {
+      const box = el('div', 'side' + (side ? '' : ' empty'));
+      box.appendChild(el('h5', null, label));
+      if (!side) {
+        box.appendChild(el('div', 'body', label === 'Older issue'
+          ? 'Not present in the older issue — this clause is new.'
+          : 'Not present in the newer issue — this clause was removed.'));
+        return box;
+      }
+      box.appendChild(el('div', 'body', side.text || '(text not returned)'));
+
+      const tags = el('div', 'tags');
+      tags.appendChild(el('span', 'tag strong',
+        `page ${side.page_start}${side.page_end !== side.page_start ? '–' + side.page_end : ''}`));
+      tags.appendChild(el('span', 'tag', side.clause_id));
+
+      if (side.evidence) {
+        const status = side.evidence.status;
+        const button = el('button', 'pill');
+        button.type = 'button';
+        button.textContent = `Source · evidence ${status}`;
+        button.addEventListener('click', () => showEvidence(label, side.evidence));
+        tags.appendChild(button);
+        if (status !== 'resolved') tags.appendChild(el('span', 'tag removed', status));
+      }
+      box.appendChild(tags);
+      return box;
+    }
+
+    function showEvidence(which, evidence) {
+      $('evidenceTitle').textContent = which + ' — source';
+      const body = $('evidenceBody');
+      clear(body);
+
+      body.appendChild(noteNode(
+        evidence.status === 'resolved' ? 'good' : 'bad',
+        evidence.status === 'resolved' ? 'Verified' : 'Evidence is ' + evidence.status,
+        evidence.status === 'resolved'
+          ? 'The quote below was sliced out of the stored page text at this clause’s recorded offsets and checked against the clause.'
+          : 'No verbatim quote is offered, because the stored offsets did not resolve cleanly against the stored page text.'
+      ));
+
+      if (evidence.problems && evidence.problems.length) {
+        const list = el('ul');
+        list.style.margin = '0 0 12px 18px';
+        evidence.problems.forEach((problem) => list.appendChild(el('li', 'meta', problem)));
+        body.appendChild(list);
+      }
+
+      const dl = el('dl', 'meta-grid');
+      [
+        ['document', evidence.document_id],
+        ['version', evidence.version_id],
+        ['clause', evidence.clause_id],
+        ['pages', `${evidence.page_start}–${evidence.page_end}`],
+        ['offsets index', evidence.offset_basis],
+      ].forEach(([key, value]) => {
+        dl.appendChild(el('dt', null, key));
+        dl.appendChild(el('dd', null, String(value)));
+      });
+      body.appendChild(dl);
+
+      (evidence.spans || []).forEach((span) => {
+        const block = el('div', 'card');
+        block.appendChild(el('h3', null,
+          `Page ${span.page_number}, characters ${span.char_start}–${span.char_end}`
+          + (span.resolved ? '' : ' — unresolved')));
+        if (span.quote) block.appendChild(el('div', 'doctext', span.quote));
+        body.appendChild(block);
+      });
+
+      if (evidence.quote) {
+        const full = el('div', 'card');
+        full.appendChild(el('h3', null, 'Verified quote'));
+        full.appendChild(el('div', 'doctext', evidence.quote));
+        body.appendChild(full);
+      }
+
+      const open = el('a', 'btn ghost', 'Open this clause in the document');
+      open.href = 'document.html?document_id=' + encodeURIComponent(evidence.document_id)
+        + '&version_id=' + encodeURIComponent(evidence.version_id)
+        + '&clause_id=' + encodeURIComponent(evidence.clause_id);
+      body.appendChild(open);
+
+      $('evidencePanel').hidden = false;
+    }
+
+    /* ---------------------------------------------------------------- wiring */
+
+    $('fDocument').addEventListener('change', (event) => {
+      state.documentId = event.target.value;
+      invalidate();
+      fillVersions();
+    });
+    ['fBase', 'fCompare'].forEach((id) => {
+      $(id).addEventListener('change', () => { invalidate(); describePair(); });
+    });
+    $('run').addEventListener('click', () => runComparison(0));
+    $('more').addEventListener('click', () => runComparison(state.offset + state.limit));
+    $('evidenceClose').addEventListener('click', () => { $('evidencePanel').hidden = true; });
+
+    document.querySelectorAll('.filters .pill[data-change]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const kind = button.dataset.change;
+        const on = button.getAttribute('aria-pressed') === 'true';
+        button.setAttribute('aria-pressed', String(!on));
+        if (on) state.changeTypes.delete(kind); else state.changeTypes.add(kind);
+        if (state.current) runComparison(0);
+      });
+    });
+    $('onlyAmbiguous').addEventListener('click', () => {
+      state.onlyAmbiguous = !state.onlyAmbiguous;
+      $('onlyAmbiguous').setAttribute('aria-pressed', String(state.onlyAmbiguous));
+      if (state.current) runComparison(0);
+    });
+
+    loadOptions();
+  </script>
+</body>
+</html>

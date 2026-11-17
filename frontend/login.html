@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Sign In</title>
+  <meta name="description" content="Sign in to BodhSetu to access public services and government schemes.">
+
+  <style>
+    :root {
+      --ink: #14211c;
+      --muted: #5b6862;
+      --line: #dcdfd9;
+      --paper: #f7f6f1;
+      --accent: #1f5a45;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      font-size: 0.95rem;
+    }
+    .top a { color: var(--ink); font-weight: 600; text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 24px 64px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.2rem;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .lead { color: var(--muted); margin-bottom: 28px; }
+
+    .field { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      height: 50px;
+      padding: 0 14px;
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    .field.error input { border-color: var(--ink); outline: 2px solid var(--ink); }
+
+    .pw { position: relative; }
+    .pw input { padding-right: 70px; }
+    .pw button {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      height: 38px;
+      width: auto;
+      padding: 0 10px;
+      background: none;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+    .pw button:hover { background: none; text-decoration: underline; }
+
+    .error-text { display: none; margin-top: 6px; font-size: 0.85rem; font-weight: 600; }
+    .field.error .error-text { display: block; }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+    .options label { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 0; cursor: pointer; }
+    .options input { accent-color: var(--accent); width: 16px; height: 16px; }
+    .options a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .options a:hover { text-decoration: underline; }
+
+    button {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #17473a; }
+    button:disabled { opacity: 0.6; cursor: default; }
+
+    .message { min-height: 22px; margin-top: 12px; font-size: 0.9rem; font-weight: 600; }
+
+    .switch { margin-top: 20px; color: var(--muted); font-size: 0.95rem; }
+    .switch a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .switch a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="top"><a href="index.html">← Back to home</a></div>
+
+  <main>
+    <div class="panel">
+      <p class="eyebrow">नियम से बोध तक।</p>
+      <h1>Welcome back</h1>
+      <p class="lead">Sign in to see your saved schemes and applications.</p>
+
+      <form id="form" novalidate>
+        <div class="field" id="contactField">
+          <label for="contact">Email or mobile number</label>
+          <input type="text" id="contact" autocomplete="username" placeholder="name@example.com or 9876543210">
+          <div class="error-text">Please enter a valid email address or 10-digit mobile number.</div>
+        </div>
+
+        <div class="field" id="passwordField">
+          <label for="password">Password</label>
+          <div class="pw">
+            <input type="password" id="password" autocomplete="current-password" placeholder="Your password">
+            <button type="button" id="toggle" aria-label="Show password">Show</button>
+          </div>
+          <div class="error-text">Please enter your password (at least 6 characters).</div>
+        </div>
+
+        <div class="options">
+          <label><input type="checkbox" id="remember" checked> Remember me</label>
+          <a href="#" id="forgot">Forgot password?</a>
+        </div>
+
+        <button type="submit" id="submitBtn">Sign In</button>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+      </form>
+
+      <p class="switch">Don’t have an account? <a href="register.html" id="signUp">Sign Up</a></p>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById('form');
+    const contact = document.getElementById('contact');
+    const password = document.getElementById('password');
+    const contactField = document.getElementById('contactField');
+    const passwordField = document.getElementById('passwordField');
+    const remember = document.getElementById('remember');
+    const message = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+    const toggle = document.getElementById('toggle');
+
+    // Pre-fill contact from URL or earlier visit
+    const params = new URLSearchParams(window.location.search);
+    const passed = params.get('contact') || params.get('email') ||
+      sessionStorage.getItem('bodhsetu_login_contact') || localStorage.getItem('bodhsetu_login_contact') || '';
+    if (passed.trim()) {
+      contact.value = passed.trim();
+      password.focus();
+    }
+
+    if (params.get('registered') === 'true' || sessionStorage.getItem('bodhsetu_just_registered') === 'true') {
+      sessionStorage.removeItem('bodhsetu_just_registered');
+      say('Account registered successfully. Please sign in.');
+    }
+
+    const savedRemember = localStorage.getItem('bodhsetu_remember_me');
+    if (savedRemember !== null) remember.checked = (savedRemember === 'true');
+
+    function say(text) { message.textContent = text; }
+
+    toggle.addEventListener('click', () => {
+      const hidden = password.type === 'password';
+      password.type = hidden ? 'text' : 'password';
+      toggle.textContent = hidden ? 'Hide' : 'Show';
+      toggle.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+    });
+
+    contact.addEventListener('input', () => contactField.classList.remove('error'));
+    password.addEventListener('input', () => passwordField.classList.remove('error'));
+
+    function isValidContact(val) {
+      const clean = val.trim();
+      if (!clean) return false;
+      const digits = clean.replace(/[\s\-\+]/g, '');
+      const isPhone = /^\d{10}$/.test(digits) || /^91\d{10}$/.test(digits);
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) || isPhone;
+    }
+
+    document.getElementById('forgot').addEventListener('click', (e) => {
+      e.preventDefault();
+      const val = contact.value.trim();
+      if (isValidContact(val)) {
+        say('Password reset link sent to ' + val);
+      } else {
+        say('Enter your email or mobile above, then click Forgot password.');
+        contact.focus();
+      }
+    });
+
+    // Signing in is the teammate's auth module (Flask + Supabase). Exploring
+    // policies, comparing issues and adding documents need no account, so a
+    // failed sign-in must not be a dead end.
+    function showBrowseFallback() {
+      if (document.getElementById('browseFallback')) return;
+      const p = document.createElement('p');
+      p.id = 'browseFallback';
+      p.className = 'switch';   // the page's own class for a secondary link
+      p.style.marginTop = '12px';
+      const a = document.createElement('a');
+      a.href = 'explore.html';
+      a.textContent = 'Browse the policy library without signing in';
+      p.appendChild(a);
+      message.insertAdjacentElement('afterend', p);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      say('');
+
+      const contactVal = contact.value.trim();
+      const passwordVal = password.value;
+      let bad = false;
+
+      if (!isValidContact(contactVal)) { contactField.classList.add('error'); bad = true; }
+      if (!passwordVal || passwordVal.length < 6) { passwordField.classList.add('error'); bad = true; }
+      if (bad) {
+        (contactField.classList.contains('error') ? contact : password).focus();
+        return;
+      }
+
+      if (remember.checked) {
+        localStorage.setItem('bodhsetu_remember_me', 'true');
+        localStorage.setItem('bodhsetu_login_contact', contactVal);
+      } else {
+        localStorage.setItem('bodhsetu_remember_me', 'false');
+        localStorage.removeItem('bodhsetu_login_contact');
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+      const done = () => { submitBtn.disabled = false; submitBtn.textContent = 'Sign In'; };
+
+      // Method A: local NiyamSetu FastAPI backend
+      try {
+        const resp = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contact: contactVal, password: passwordVal })
+        });
+        const data = await resp.json();
+
+        if (resp.ok && data.success) {
+          localStorage.setItem('bodhsetu_token', data.token);
+          sessionStorage.setItem('bodhsetu_token', data.token);
+          if (data.user) localStorage.setItem('bodhsetu_user', JSON.stringify(data.user));
+          done();
+          say('Welcome back, ' + ((data.user && data.user.full_name) || contactVal) + '. Signing you in...');
+          window.location.href = 'user_home.html';
+          return;
+        }
+        if (resp.ok && !data.success) {
+          done();
+          say(data.error || 'Invalid credentials. Please check your password.');
+          return;
+        }
+      } catch (err) {
+        console.warn('Local /api/login error:', err);
+      }
+
+      // Method B: Supabase fallback
+      try {
+        const base = 'https://ipxqutjnwyilfbletkir.supabase.co/rest/v1/user_database';
+        const key = 'sb_publishable_F2RHMXsrlRD3OYjfHt-YfQ_0x6Sf9O8';
+
+        const digits = contactVal.replace(/\D/g, '');
+        let url;
+        if (contactVal.includes('@')) {
+          url = base + '?contact=eq.' + encodeURIComponent(contactVal.toLowerCase()) + '&select=*';
+        } else if (digits.length >= 10) {
+          const core = digits.slice(-10);
+          const conds = [core, '+91' + core, '91' + core, '0' + core].map(c => 'contact.eq.' + c).join(',');
+          url = base + '?or=(' + conds + ')&select=*';
+        } else {
+          url = base + '?contact=eq.' + encodeURIComponent(contactVal) + '&select=*';
+        }
+
+        const resp = await fetch(url, { headers: { apikey: key, Authorization: 'Bearer ' + key } });
+        if (resp.ok) {
+          const records = await resp.json();
+          if (records && records.length > 0) {
+            const user = records[0];
+            const stored = user.password || '';
+
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(passwordVal));
+            const hash = 'sha256:' + Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (stored === hash || stored === passwordVal) {
+              delete user.password;
+              localStorage.setItem('bodhsetu_user', JSON.stringify(user));
+              sessionStorage.setItem('bodhsetu_user', JSON.stringify(user));
+              done();
+              say('Welcome back, ' + (user.full_name || contactVal) + '. Signing you in...');
+              window.location.href = 'user_home.html';
+            } else {
+              done();
+              say('Incorrect password. Please try again.');
+            }
+          } else {
+            done();
+            say('No account found for this contact. Please sign up first.');
+          }
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase login error:', err);
+      }
+
+      done();
+      say('Connection error. Please check your internet or start the backend.');
+      showBrowseFallback();
+    });
+  </script>
+</body>
+</html>

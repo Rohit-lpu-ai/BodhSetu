@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NiyamSetuRAGRetrievalEvaluationExample",
+  "description": "Schema for NiyamSetu RAG retrieval benchmark examples. Each line in the JSONL evaluation dataset must conform to this schema.",
+  "type": "object",
+  "required": [
+    "question_id",
+    "question",
+    "language",
+    "is_answerable",
+    "relevant_clause_ids"
+  ],
+  "properties": {
+    "question_id": {
+      "type": "string",
+      "pattern": "^EVAL-[A-Z0-9_-]+$",
+      "description": "Unique identifier for the evaluation example (e.g. EVAL-EN-0001, EVAL-HI-0005)."
+    },
+    "question": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Natural language question or user query."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["en", "hi"],
+      "description": "ISO 639-1 language code of the question (en = English, hi = Hindi)."
+    },
+    "is_answerable": {
+      "type": "boolean",
+      "description": "Indicates whether the question has an authoritative answer in the indexed regulatory corpus. Set to false for out-of-scope or ungrounded queries."
+    },
+    "relevant_clause_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ordered list of authoritative ground-truth clause_id values (e.g. CLS-0000253) required to answer the query. Empty list [] if is_answerable is false."
+    },
+    "relevant_document_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "List of logical document_id values (e.g. DOC-0001) that contain the relevant clauses."
+    },
+    "relevant_version_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "List of version_id values (e.g. VER-0001) that contain the relevant clauses."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "single_clause",
+        "multi_clause",
+        "clause_number_heading",
+        "unanswerable",
+        "cross_lingual",
+        "table_annexure"
+      ],
+      "description": "Benchmark evaluation category reflecting query complexity and retrieval mode."
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"],
+      "description": "Subjective domain difficulty assessment for the query."
+    },
+    "query_type": {
+      "type": "string",
+      "enum": ["factoid", "procedural", "definitional", "comparative"],
+      "description": "Semantic query classification."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Annotator notes explaining relevance rationale, edge cases, or reasons for unanswerability."
+    },
+    "annotator_id": {
+      "type": "string",
+      "description": "Identifier of the legal/domain expert who authored or verified this ground-truth example."
+    }
+  },
+  "additionalProperties": false
+}

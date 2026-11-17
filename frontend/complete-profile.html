@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Complete Your Profile (Step 2 of 2)</title>
+  <meta name="description" content="Complete your profile to personalize schemes and public services on BodhSetu.">
+
+  <style>
+    :root {
+      --ink: #14211c;
+      --muted: #5b6862;
+      --line: #dcdfd9;
+      --paper: #f7f6f1;
+      --accent: #1f5a45;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      font-size: 0.95rem;
+    }
+    .top a { color: var(--ink); font-weight: 600; text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+
+    main { flex: 1; display: flex; justify-content: center; padding: 8px 24px 64px; }
+    .panel { width: 100%; max-width: 560px; }
+
+    .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 10px; }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.1rem;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .lead { color: var(--muted); margin-bottom: 26px; }
+
+    fieldset { border: none; border-top: 1px solid var(--line); padding: 18px 0 4px; margin-bottom: 8px; }
+    legend { font-weight: 700; padding-right: 12px; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .field { margin-bottom: 16px; }
+    label, .label { display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 6px; }
+    .opt { font-weight: 400; color: var(--muted); }
+
+    input[type="text"], select {
+      width: 100%;
+      height: 48px;
+      padding: 0 12px;
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+
+    .static {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #efeee8;
+      color: var(--ink);
+    }
+
+    .radios { display: flex; gap: 20px; flex-wrap: wrap; height: 48px; align-items: center; }
+    .radios label { display: flex; align-items: center; gap: 6px; font-weight: 400; margin: 0; cursor: pointer; }
+    .radios input { accent-color: var(--accent); width: 16px; height: 16px; }
+    .full { grid-column: 1 / -1; }
+
+    .actions { display: flex; gap: 12px; margin-top: 12px; }
+    button {
+      height: 50px;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .back { padding: 0 22px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .back:hover { border-color: var(--ink); }
+    .done { flex: 1; border: none; background: var(--accent); color: #fff; }
+    .done:hover { background: #17473a; }
+    button:disabled { opacity: 0.6; cursor: default; }
+
+    .message { min-height: 22px; margin-top: 12px; font-size: 0.9rem; font-weight: 600; }
+    .note { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column-reverse; }
+      .back { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top"><a href="index.html">← Back to home</a></div>
+
+  <main>
+    <div class="panel">
+      <p class="eyebrow">Step 2 of 2 · Complete profile</p>
+      <h1>Complete your profile</h1>
+      <p class="lead">This helps us show schemes that fit you. You can update it later.</p>
+
+      <form id="form" novalidate>
+        <fieldset>
+          <legend>Personal</legend>
+          <div class="grid">
+        <div class="field">
+          <label for="age">Age group</label>
+          <select id="age" name="ageGroup"><option value="" disabled selected>Select age group</option><option value="Under 18">Under 18</option><option value="18–25">18–25</option><option value="26–40">26–40</option><option value="41–60">41–60</option><option value="Above 60">Above 60</option><option value="Prefer not to say">Prefer not to say</option></select>
+        </div>
+        <div class="field">
+          <label for="lang">Preferred language</label>
+          <select id="lang" name="preferredLanguage"><option value="" disabled selected>Select language</option><option value="Hindi">Hindi (हिन्दी)</option><option value="English">English</option><option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option><option value="Bengali">Bengali (বাংলা)</option><option value="Marathi">Marathi (मराठी)</option><option value="Telugu">Telugu (తెలుగు)</option><option value="Tamil">Tamil (தமிழ்)</option><option value="Other">Other</option></select>
+        </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Location</legend>
+          <div class="grid">
+            <div class="field">
+              <span class="label">State / Union Territory</span>
+              <div class="static" id="stateName">Not specified</div>
+            </div>
+            <div class="field">
+              <label for="district">District</label>
+              <input type="text" id="district" autocomplete="address-level2" placeholder="e.g. Jodhpur">
+            </div>
+            <div class="field full">
+              <span class="label">Residence type</span>
+              <div class="radios" role="radiogroup" aria-label="Residence type">
+                <label><input type="radio" name="residenceType" value="Rural" checked> Rural</label>
+                <label><input type="radio" name="residenceType" value="Urban"> Urban</label>
+                <label><input type="radio" name="residenceType" value="Prefer not to say"> Prefer not to say</label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Education &amp; occupation</legend>
+          <div class="grid">
+        <div class="field">
+          <label for="edu">Education level</label>
+          <select id="edu" name="highestEducation"><option value="" disabled selected>Select level</option><option value="No formal education">No formal education</option><option value="Primary">Primary (Class 1–5)</option><option value="Secondary">Secondary (Class 6–10)</option><option value="Higher secondary">Higher secondary (Class 11–12)</option><option value="Diploma / ITI">Diploma / ITI</option><option value="Undergraduate">Undergraduate (Bachelor's)</option><option value="Postgraduate">Postgraduate (Master's)</option><option value="Other">Other</option><option value="Prefer not to say">Prefer not to say</option></select>
+        </div>
+        <div class="field">
+          <label for="status">Education status</label>
+          <select id="status" name="educationStatus"><option value="" disabled selected>Select status</option><option value="Currently studying">Currently studying</option><option value="Completed education">Completed education</option><option value="Looking for further education">Looking for further education</option><option value="Not applicable">Not applicable</option><option value="Prefer not to say">Prefer not to say</option></select>
+        </div>
+        <div class="field">
+          <label for="occ">Primary occupation</label>
+          <select id="occ" name="primaryOccupation"><option value="" disabled selected>Select occupation</option><option value="Student">Student</option><option value="Farmer">Farmer (कृषक)</option><option value="Salaried employee">Salaried employee</option><option value="Daily-wage worker">Daily-wage worker (दैनिक वेतनभोगी)</option><option value="Self-employed / Business owner">Self-employed / Business owner</option><option value="Homemaker">Homemaker</option><option value="Job seeker">Job seeker</option><option value="Retired">Retired</option><option value="Other">Other</option><option value="Prefer not to say">Prefer not to say</option></select>
+        </div>
+        <div class="field">
+          <label for="income">Household income <span class="opt">(optional)</span></label>
+          <select id="income" name="annualIncome"><option value="" selected>Select income</option><option value="Below ₹1 lakh">Below ₹1 lakh</option><option value="₹1–2.5 lakh">₹1–2.5 lakh</option><option value="₹2.5–5 lakh">₹2.5–5 lakh</option><option value="₹5–10 lakh">₹5–10 lakh</option><option value="Above ₹10 lakh">Above ₹10 lakh</option><option value="Prefer not to say">Prefer not to say</option></select>
+        </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="back" id="backBtn">← Back</button>
+          <button type="submit" class="done" id="submitBtn">Complete Registration</button>
+        </div>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const form = $('form');
+    const submitBtn = $('submitBtn');
+    const message = $('message');
+
+    // 1. Restore Step 1 data
+    let step1 = {};
+    try {
+      const raw = sessionStorage.getItem('bodhsetu_step1_data');
+      if (raw) step1 = JSON.parse(raw);
+    } catch (e) {
+      console.warn('Error reading step 1 data', e);
+    }
+    $('stateName').textContent = step1.state || 'Not specified';
+
+    // 2. Restore Step 2 draft (if the user went back and returned)
+    try {
+      const d = JSON.parse(sessionStorage.getItem('bodhsetu_step2_draft') || '{}');
+      if (d.ageGroup) $('age').value = d.ageGroup;
+      if (d.preferredLanguage) $('lang').value = d.preferredLanguage;
+      if (d.district) $('district').value = d.district;
+      if (d.residenceType) {
+        const r = document.querySelector('input[name="residenceType"][value="' + d.residenceType + '"]');
+        if (r) r.checked = true;
+      }
+      if (d.highestEducation) $('edu').value = d.highestEducation;
+      if (d.educationStatus) $('status').value = d.educationStatus;
+      if (d.primaryOccupation) $('occ').value = d.primaryOccupation;
+      if (d.annualIncome) $('income').value = d.annualIncome;
+    } catch (e) {
+      console.warn('Error restoring step 2 draft', e);
+    }
+
+    function saveDraft() {
+      const draft = {
+        ageGroup: $('age').value,
+        preferredLanguage: $('lang').value,
+        district: $('district').value.trim(),
+        residenceType: (document.querySelector('input[name="residenceType"]:checked') || {}).value || 'Rural',
+        highestEducation: $('edu').value,
+        educationStatus: $('status').value,
+        primaryOccupation: $('occ').value,
+        annualIncome: $('income').value
+      };
+      try { sessionStorage.setItem('bodhsetu_step2_draft', JSON.stringify(draft)); } catch (e) {}
+      return draft;
+    }
+
+    $('backBtn').addEventListener('click', () => {
+      saveDraft();
+      window.location.href = 'register.html';
+    });
+
+    function goToLogin(contact) {
+      window.location.href = 'login.html?contact=' + encodeURIComponent(contact);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+
+      if (!step1.contact || !step1.fullName || !step1.password || !step1.state) {
+        message.textContent = 'Step 1 information is missing. Taking you back...';
+        setTimeout(() => { window.location.href = 'register.html'; }, 1200);
+        return;
+      }
+
+      const s2 = saveDraft();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
+      const reset = () => { submitBtn.disabled = false; submitBtn.textContent = 'Complete Registration'; };
+
+      const payload = {
+        full_name: step1.fullName.trim(),
+        contact: step1.contact.trim(),
+        password: step1.password,
+        state: step1.state.trim(),
+        district: (s2.district || '').trim() || null,
+        residence_type: s2.residenceType || 'Rural',
+        age_group: s2.ageGroup || null,
+        preferred_language: s2.preferredLanguage || null,
+        highest_education: s2.highestEducation || null,
+        education_status: s2.educationStatus || null,
+        primary_occupation: s2.primaryOccupation || null,
+        annual_income: s2.annualIncome || null,
+        is_active: true
+      };
+
+      let saved = false;
+
+      // Method 1: local NiyamSetu FastAPI backend
+      try {
+        const resp = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await resp.json();
+        if (resp.ok && result.success) {
+          saved = true;
+          if (result.token) localStorage.setItem('bodhsetu_token', result.token);
+        } else if (resp.status === 409) {
+          message.textContent = 'An account with this email or mobile number already exists. Taking you to Sign In...';
+          setTimeout(() => goToLogin(payload.contact), 1500);
+          return;
+        }
+      } catch (err) {
+        console.warn('Local /api/register error:', err);
+      }
+
+      // Method 2: Supabase fallback
+      if (!saved) {
+        try {
+          const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload.password));
+          const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+          const body = Object.assign({}, payload, { password: 'sha256:' + hex });
+
+          const key = 'sb_publishable_F2RHMXsrlRD3OYjfHt-YfQ_0x6Sf9O8';
+          const resp = await fetch('https://ipxqutjnwyilfbletkir.supabase.co/rest/v1/user_database', {
+            method: 'POST',
+            headers: {
+              apikey: key,
+              Authorization: 'Bearer ' + key,
+              'Content-Type': 'application/json',
+              Prefer: 'return=representation'
+            },
+            body: JSON.stringify(body)
+          });
+
+          if (resp.status === 200 || resp.status === 201) {
+            saved = true;
+          } else if (resp.status === 409) {
+            message.textContent = 'An account with this email or mobile number already exists. Taking you to Sign In...';
+            setTimeout(() => goToLogin(payload.contact), 1500);
+            return;
+          } else {
+            console.error('Supabase insert error:', resp.status, await resp.text());
+          }
+        } catch (err) {
+          console.error('Supabase connection error:', err);
+        }
+      }
+
+      if (saved) {
+        sessionStorage.removeItem('bodhsetu_step1_data');
+        sessionStorage.removeItem('bodhsetu_step2_draft');
+        sessionStorage.setItem('bodhsetu_just_registered', 'true');
+        sessionStorage.setItem('bodhsetu_login_contact', payload.contact);
+        window.location.href = 'login.html?contact=' + encodeURIComponent(payload.contact) + '&registered=true';
+      } else {
+        reset();
+        message.textContent = 'Could not save your registration. Please check your internet connection and try again.';
+      }
+    });
+  </script>
+</body>
+</html>

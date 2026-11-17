@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BodhSetu — Saved</title>
+  <meta name="description" content="The documents and clauses you saved, re-read from the official record each time this page opens.">
+  <link rel="stylesheet" href="assets/bodhsetu.css">
+</head>
+<body>
+  <main class="site" id="main">
+    <p class="eyebrow">Bridging policies. Connecting people.</p>
+    <h1 class="display">Saved for <em>later.</em></h1>
+    <p class="lead">What you marked while exploring. Only the reference is kept in this browser — the title, pages and text below are read back from the official record every time this page opens, so nothing here is a stale copy.</p>
+
+    <div class="row keep" style="align-items:baseline;justify-content:space-between;margin-bottom:12px">
+      <h2 class="section" id="heading">Saved items</h2>
+      <button type="button" class="link" id="clearAll" hidden>Remove all</button>
+    </div>
+
+    <div id="list"></div>
+  </main>
+
+  <script src="assets/api.js"></script>
+  <script>
+    mountHeader('saved');
+    mountFooter('Saved references live in this browser only; their content comes from the database.');
+
+    async function render() {
+      const list = $('list');
+      const items = savedItems();
+      $('heading').textContent = items.length ? plural(items.length, 'saved item') : 'Saved items';
+      $('clearAll').hidden = !items.length;
+
+      if (!items.length) {
+        clear(list);
+        list.appendChild(noteNode(
+          null,
+          'Nothing saved yet',
+          'Open Explore Policies and press Save on a document or a clause. It will appear here.'
+        ));
+        const link = el('a', 'btn', 'Explore policies');
+        link.href = 'explore.html';
+        list.appendChild(link);
+        return;
+      }
+
+      showSkeleton(list, Math.min(items.length, 4));
+
+      // Resolve every saved reference against the live API, in parallel.
+      // A reference that no longer resolves is shown as such rather than
+      // rendered from whatever was cached when it was saved.
+      const resolved = await Promise.all(items.map(resolve));
+      clear(list);
+      resolved.forEach((entry) => list.appendChild(card(entry)));
+    }
+
+    async function resolve(item) {
+      try {
+        if (item.kind === 'document') {
+          const detail = await apiGet('/documents/' + encodeURIComponent(item.document_id));
+          return { item: item, ok: true, detail: detail };
+        }
+        // A clause: fetch its version's clauses and find it. The clause
+        // endpoint is paginated, so this walks pages until it is found —
+        // bounded, because a version's clause count is known.
+        let offset = 0;
+        for (let guard = 0; guard < 20; guard += 1) {
+          const payload = await apiGet(
+            '/documents/' + encodeURIComponent(item.document_id) + '/clauses',
+            { version_id: item.version_id, limit: 100, offset: offset }
+          );
+          const found = payload.items.find((c) => c.clause_id === item.clause_id);
+          if (found) return { item: item, ok: true, clause: found, version_id: payload.version_id };
+          offset += 100;
+          if (offset >= payload.total) break;
+        }
+        return { item: item, ok: false, error: new ApiError('CLAUSE_NOT_FOUND', 'That clause is no longer in the stored version.', 404, {}) };
+      } catch (err) {
+        return { item: item, ok: false, error: err };
+      }
+    }
+
+    function card(entry) {
+      const node = el('div', 'card');
+      const item = entry.item;
+
+      if (!entry.ok) {
+        node.appendChild(el('h3', null, item.title || item.label || item.clause_id || item.document_id));
+        node.appendChild(el('p', 'meta', 'This saved item could not be read back: ' + entry.error.message));
+        node.appendChild(removeButton(item));
+        return node;
+      }
+
+      if (item.kind === 'document') {
+        const detail = entry.detail;
+        const h3 = el('h3');
+        const link = el('a', null, detail.title);
+        link.href = 'document.html?document_id=' + encodeURIComponent(detail.document_id);
+        h3.appendChild(link);
+        node.appendChild(h3);
+        node.appendChild(el('p', 'meta', orDash(detail.department)));
+        node.appendChild(el('p', 'meta', orDash(detail.reference_no)));
+        const tags = el('div', 'tags');
+        tags.appendChild(el('span', 'tag', detail.document_id));
+        if (detail.document_type) tags.appendChild(el('span', 'tag', detail.document_type));
+        tags.appendChild(el('span', 'tag', plural(detail.versions.length, 'version')));
+        node.appendChild(tags);
+      } else {
+        const clause = entry.clause;
+        const h3 = el('h3');
+        const label = clause.clause_number
+          ? 'Clause ' + clause.clause_number + (clause.heading ? ' — ' + clause.heading : '')
+          : (clause.heading || clause.clause_id);
+        const link = el('a', null, label);
+        link.href = 'document.html?document_id=' + encodeURIComponent(item.document_id)
+          + '&version_id=' + encodeURIComponent(entry.version_id)
+          + '&clause_id=' + encodeURIComponent(clause.clause_id);
+        h3.appendChild(link);
+        node.appendChild(h3);
+
+        const text = el('div', 'meta');
+        text.style.marginTop = '8px';
+        text.style.whiteSpace = 'pre-wrap';
+        text.textContent = clause.text.length > 400 ? clause.text.slice(0, 400) + '…' : clause.text;
+        node.appendChild(text);
+
+        const tags = el('div', 'tags');
+        tags.appendChild(el('span', 'tag strong',
+          `page ${clause.page_start}${clause.page_end !== clause.page_start ? '–' + clause.page_end : ''}`));
+        tags.appendChild(el('span', 'tag', clause.clause_id));
+        if (clause.segment_type) tags.appendChild(el('span', 'tag', clause.segment_type));
+        node.appendChild(tags);
+      }
+
+      node.appendChild(el('p', 'meta', 'Saved ' + fmtDate(item.saved_at)));
+      node.appendChild(removeButton(item));
+      return node;
+    }
+
+    function removeButton(item) {
+      const row = el('div');
+      row.style.marginTop = '10px';
+      const button = el('button', 'link', 'Remove');
+      button.type = 'button';
+      button.addEventListener('click', () => { removeSaved(item); render(); });
+      row.appendChild(button);
+      return row;
+    }
+
+    $('clearAll').addEventListener('click', () => {
+      savedItems().forEach(removeSaved);
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+{
+  "export_format": "jsonl/niyamsetu-segments/1.0.0",
+  "database": "niyamsetu",
+  "exported_at": "2026-11-15T11:23:57+00:00",
+  "source": {
+    "host": "localhost (from .env; credentials are never recorded here)",
+    "session_transaction_read_only": "on",
+    "written_by": "backend/scripts/export_segments.py",
+    "reproducible": "Deterministic: rows are ordered by (document, version, method, ordinal), so re-running against an unchanged database reproduces this file byte for byte, and therefore this checksum."
+  },
+  "total_records": 501,
+  "paragraph_segments": 138,
+  "clause_aware_segments": 363,
+  "document_count": 4,
+  "version_count": 4,
+  "page_provenance_records": 552,
+  "database_counts": {
+    "documents": 4,
+    "versions": 4,
+    "pages": 57,
+    "segments": 501,
+    "paragraph_segments": 138,
+    "clause_aware_segments": 363,
+    "segment_pages": 552
+  },
+  "field_mapping": {
+    "document_id": "documents.public_id — e.g. 'DOC-0001'. NOT the integer key.",
+    "version_id": "document_versions.public_id — e.g. 'VER-0001'. NOT the integer key.",
+    "clause_id": "segments.public_id — e.g. 'CLS-0000123'. There is NO clause_id column in the schema; public_id is the identifier, and CLAUDE.md §12.3 plus backend/app/db/repository.py already expose it under the name clause_id in every API payload. Nothing is fabricated.",
+    "fingerprint": "segments.fingerprint — 'SEG-<16 hex>', derived from (version_id, segmentation_method, ordinal) and NOT from the text. It is stable across a re-ingestion that would renumber public_id, so it is the safer join key for anything stored outside this database.",
+    "text": "segments.text — verbatim, exactly as stored. Not normalised, re-wrapped, truncated or summarised by this export.",
+    "clause_number": "segments.clause_number — as printed ('3.2', '(iv)'). NULL on every paragraph segment by a schema CHECK, and on clause_aware segments where no marker was detected.",
+    "heading": "segments.heading — NULL unless a heading was detected.",
+    "segment_type": "segments.segment_type — one of clause | paragraph | heading | annexure | preamble | unclassified.",
+    "segmentation_method": "segments.segmentation_method — 'paragraph' or 'clause_aware'. NOT in the requested field list, but added deliberately: without it the two segmentations are indistinguishable in the file, the 138/363 split cannot be checked, and a retrieval index would silently contain the same passage twice.",
+    "ordinal": "segments.ordinal — document order within (version, method).",
+    "page_start": "segments.page_start — 1-based, inclusive.",
+    "page_end": "segments.page_end — 1-based, inclusive. Equals page_start unless the segment spans a page break.",
+    "pages": "One PageProvenance object per segment_pages row for this segment, ordered by page_number. This is the precise provenance; page_start / page_end are the cheap summary. A segment spanning two pages has TWO entries and is never collapsed onto one.",
+    "offset_basis": "document_versions.offset_basis — which page column the character offsets index into. NOT in the requested field list, but added deliberately: the offsets are unusable without it. It is 'normalized_text' for every version in this corpus (D-11, verified), so char_start/char_end slice pages.normalized_text — NOT raw_text."
+  },
+  "page_provenance_mapping": {
+    "page_number": "segment_pages.page_number — 1-based.",
+    "char_start": "segment_pages.char_start — inclusive offset into that page's text on the record's offset_basis column.",
+    "char_end": "segment_pages.char_end — exclusive offset, same basis.",
+    "line_index_start": "segment_pages.line_index_start — 0-based line index on that page.",
+    "line_index_end": "segment_pages.line_index_end — 0-based, inclusive."
+  },
+  "nullable_fields": {
+    "clause_number": "NULL on every paragraph segment (enforced by a schema CHECK) and on any clause_aware segment with no detected marker.",
+    "heading": "NULL unless a heading was detected. Rare.",
+    "department / document_type / reference_no": "Document-level and nullable; they live in this manifest's `documents` block, not on each record."
+  },
+  "notes": [
+    "text is verbatim from segments.text. Nothing was normalised, re-wrapped, truncated or summarised.",
+    "Both segmentations are present and cover the SAME source text. Index ONE of them — filter on segmentation_method — or the same passage will be retrieved twice.",
+    "char_start/char_end index pages.normalized_text (offset_basis), NOT raw_text. Slicing the wrong column gives the wrong span.",
+    "A segment spanning a page break has two entries in `pages`; it is never collapsed onto one page."
+  ],
+  "documents": [
+    {
+      "document_id": "DOC-0001",
+      "version_id": "VER-0001",
+      "title": "Re-organisation of districts in the NCT of Delhi - Assignment and Review of Lead Bank Responsibility",
+      "department": "Financial Inclusion & Development Dept, Central Office",
+      "document_type": "circular",
+      "reference_no": "RBI/2026-27/300 FIDD.CO.LBS.BC.No.12/02.08.001/2026-27",
+      "version_label": "2026-10-26",
+      "publication_date": "2026-10-26",
+      "page_count": 2,
+      "extraction_status": "ok",
+      "offset_basis": "normalized_text",
+      "source_url": "https://rbidocs.rbi.org.in/rdocs/notification/PDFs/NOT300F305FBB8AB71472391BE6B9C2D74EB35.PDF",
+      "original_filename": "rbi_circular_lead-bank-delhi_v1.pdf"
+    },
+    {
+      "document_id": "DOC-0002",
+      "version_id": "VER-0002",
+      "title": "Reserve Bank of India (Commercial Banks - Forthcoming Instructions) Second Amendment Directions, 2026",
+      "department": "Department of Regulation, Central Office",
+      "document_type": "amendment",
+      "reference_no": "RBI/2026-27/299 DOR.ORG.REC.252/21.06.050/2026-27",
+      "version_label": "2026-2nd-amendment",
+      "publication_date": "2026-10-23",
+      "page_count": 10,
+      "extraction_status": "ok",
+      "offset_basis": "normalized_text",
+      "source_url": "https://rbidocs.rbi.org.in/rdocs/notification/PDFs/NT298343573D91EA4465B8CFF54B27EC977D5.PDF",
+      "original_filename": "rbi_directions_commercial-banks-forthcoming-2nd-amendment_v1.pdf"
+    },
+    {
+      "document_id": "DOC-0003",
+      "version_id": "VER-0003",
+      "title": "Master Circular - Credit facilities to Scheduled Castes (SCs) & Scheduled Tribes (STs)",
+      "department": "Financial Inclusion & Development Dept., Central Office",
+      "document_type": "circular",
+      "reference_no": "RBI/2026-27/272 FIDD.CO.GSSD.BC.No.11/09.09.001/2026-27",
+      "version_label": "2026-10-01",
+      "publication_date": "2026-10-01",
+      "page_count": 8,
+      "extraction_status": "ok",
+      "offset_basis": "normalized_text",
+      "source_url": "https://rbidocs.rbi.org.in/rdocs/notification/PDFs/272MC011020266691348260DF4CF99ACE017F146409F1.PDF",
+      "original_filename": "rbi_master-circular_272mc_v1.pdf"
+    },
+    {
+      "document_id": "DOC-0004",
+      "version_id": "VER-0004",
+      "title": "Reserve Bank of India (Commercial Banks - Prudential Norms on Capital Adequacy) Eleventh Amendment Directions, 2026",
+      "department": null,
+      "document_type": "amendment",
+      "reference_no": "RBI/2026-27/297 DOR.CAP.REC. 251/21-02-002/2026-27",
+      "version_label": "2026-11th-amendment",
+      "publication_date": "2026-10-23",
+      "page_count": 37,
+      "extraction_status": "ok",
+      "offset_basis": "normalized_text",
+      "source_url": "https://rbidocs.rbi.org.in/rdocs/notification/PDFs/297NTF24A93A6BC7943F2A35FACCE28E4ABC3.PDF",
+      "original_filename": "rbi_directions_capital-adequacy-11th-amendment_v1.pdf"
+    }
+  ],
+  "validation": [
+    {
+      "check": "record count equals segments in the database",
+      "passed": true,
+      "detail": "501 exported, 501 in the database"
+    },
+    {
+      "check": "paragraph segment count matches",
+      "passed": true,
+      "detail": "138 exported, 138 in the database"
+    },
+    {
+      "check": "clause_aware segment count matches",
+      "passed": true,
+      "detail": "363 exported, 363 in the database"
+    },
+    {
+      "check": "every document is represented",
+      "passed": true,
+      "detail": "4 distinct document_id, 4 in the database"
+    },
+    {
+      "check": "every version is represented",
+      "passed": true,
+      "detail": "4 distinct version_id, 4 in the database"
+    },
+    {
+      "check": "no duplicate clause_id",
+      "passed": true,
+      "detail": "0 duplicate(s)"
+    },
+    {
+      "check": "no duplicate fingerprint",
+      "passed": true,
+      "detail": "0 duplicate(s)"
+    },
+    {
+      "check": "every record's document/version pairing is real",
+      "passed": true,
+      "detail": "0 invalid pairing(s): []"
+    },
+    {
+      "check": "every record has page provenance",
+      "passed": true,
+      "detail": "0 record(s) with an empty pages array"
+    },
+    {
+      "check": "every page reference resolves to a stored page",
+      "passed": true,
+      "detail": "0 unresolved: []"
+    },
+    {
+      "check": "character offsets are ordered and non-negative",
+      "passed": true,
+      "detail": "0 record(s) with a bad range"
+    },
+    {
+      "check": "pages array agrees with page_start/page_end",
+      "passed": true,
+      "detail": "0 mismatch(es): []"
+    },
+    {
+      "check": "PageProvenance count equals segment_pages rows",
+      "passed": true,
+      "detail": "552 exported, 552 in the database"
+    },
+    {
+      "check": "text is byte-identical to the stored text",
+      "passed": true,
+      "detail": "0 altered: []"
+    }
+  ],
+  "jsonl_sha256": "6a870036940b4b808147c3ba01b9ff9de01a17934c61cb9e14a2b74b6a02b15c",
+  "jsonl_bytes": 438166,
+  "files": {
+    "jsonl": "exports/niyamsetu_segments_501.jsonl",
+    "manifest": "exports/niyamsetu_segments_export_manifest.json"
+  }
+}
