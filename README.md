@@ -580,28 +580,44 @@ Honest and load-bearing — see `backend/docs/final-backend-evaluation.md` §9 f
 
 <div align="center">
 
+
 ## 👥 Group Members
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=18&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&width=500&lines=Team+BodhSetu;Built+together" alt="Team typing animation"/>
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=18&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&width=500&lines=Team+BodhSetu;Built+together" alt="Team typing animation"/>
+</p>
 
 <br/>
 
-![Rohit Sharma](https://img.shields.io/badge/Rohit%20Sharma-38bdf8?style=for-the-badge&logo=github&logoColor=white)
-![Diwarka Kaushik](https://img.shields.io/badge/Diwarka%20Kaushik-a78bfa?style=for-the-badge&logo=github&logoColor=white)
-![Shivam Bharti](https://img.shields.io/badge/Shivam%20Bharti-34d399?style=for-the-badge&logo=github&logoColor=white)
-![Rajat](https://img.shields.io/badge/Rajat-f59e0b?style=for-the-badge&logo=github&logoColor=white)
-![Mechapia](https://img.shields.io/badge/Mechapia-f43f5e?style=for-the-badge&logo=github&logoColor=white)
+<a href="https://github.com/Rohit-lpu-ai">
+  <img src="https://img.shields.io/badge/Rohit%20Sharma-38bdf8?style=for-the-badge&logo=github&logoColor=white" alt="Rohit Sharma"/>
+</a>
+<a href="https://github.com/Diw696">
+  <img src="https://img.shields.io/badge/Diwarka%20Kaushik-a78bfa?style=for-the-badge&logo=github&logoColor=white" alt="Diwarka Kaushik"/>
+</a>
+<a href="https://github.com/Shivambharti28">
+  <img src="https://img.shields.io/badge/Shivam%20Bharti-34d399?style=for-the-badge&logo=github&logoColor=white" alt="Shivam Bharti"/>
+</a>
+<a href="https://github.com/Rajat6125">
+  <img src="https://img.shields.io/badge/Rajat-f59e0b?style=for-the-badge&logo=github&logoColor=white" alt="Rajat"/>
+</a>
+<img src="https://img.shields.io/badge/Mechapia-f43f5e?style=for-the-badge&logo=github&logoColor=white" alt="Mechapia"/>
+
+<br/>
 
 | Rohit Sharma | Diwarka Kaushik | Shivam Bharti | Rajat | Mechapia |
 |:---:|:---:|:---:|:---:|:---:|
 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 |
 
-</div>
 
-<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
+<p align="center">
+  
+  <strong>🌟 Shared Vision. Collective Effort. Lasting Impact.</strong>
+</p>
 
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/>
+</p>
 <div align="center">
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%" alt=""/>
-
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%" alt=""/>
 </div>
