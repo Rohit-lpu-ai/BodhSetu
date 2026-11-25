@@ -1,17 +1,36 @@
-# NiyamSetu
-🚀 **Project Idea: NiyamSetu — Making Government Rules Easy to Understand**
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=260&section=header&text=BodhSetu&fontSize=80&fontColor=ffffff&animation=twinkling&fontAlignY=38&desc=Making%20Government%20Rules%20Easy%20to%20Understand&descAlignY=58&descSize=22" alt="BodhSetu — Making Government Rules Easy to Understand" width="100%"/>
+
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=3500&pause=1000&color=38BDF8&center=true&vCenter=true&width=900&lines=Complex+Government+Document+%E2%86%92+NLP+Understanding+%E2%86%92+Simple%2C+Actionable+Explanation;Simple+language+and+regional+languages;Every+answer+with+the+original+source%2Fsection" alt="Typing animation"/></a>
+
+<br/>
+
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-1%2C562%20passing-2ea44f?style=for-the-badge)
+![Groq](https://img.shields.io/badge/Groq-gpt--oss--120b-F55036?style=for-the-badge)
+![NLP](https://img.shields.io/badge/NLP-RAG%20%2B%20Transformers-8A2BE2?style=for-the-badge)
+
+</div>
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
+
+# BodhSetu
+🚀 **Project Idea: BodhSetu — Making Government Rules Easy to Understand**
 
 ### 🧠 What is the project?
 
 Government notifications, schemes, rules and legal documents are usually written in complicated language.
 
-**NiyamSetu** is an NLP-based system that reads these documents, understands the important information, detects what has changed, and explains it to people in **simple language and regional languages**.
+**BodhSetu** is an NLP-based system that reads these documents, understands the important information, detects what has changed, and explains it to people in **simple language and regional languages**.
 
 Basically:
 
 > **Complex Government Document → NLP Understanding → Simple, Actionable Explanation**
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 🔨 What are we actually going to build?
 
@@ -36,7 +55,7 @@ Then users can simply ask:
 
 And the system gives a **simple answer with the original source/section**, so the answer can be verified.
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 🎯 Main Features
 
@@ -77,7 +96,7 @@ Every important answer should show:
 
 So we're not just trusting an AI-generated answer.
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 🖥️ What could the interface look like?
 
@@ -87,7 +106,7 @@ Something simple:
 
 ```text
 ┌──────────────────────────────────────┐
-│ NiyamSetu                             │
+│ BodhSetu                             │
 │                                      │
 │ 🔍 Search government policies...     │
 │                                      │
@@ -125,7 +144,7 @@ Section 3.2
 
 Clean and understandable. **Not another over-designed AI dashboard.**
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 👨‍👩‍👧‍👦 Who does this help?
 
@@ -153,7 +172,7 @@ They can quickly identify changes across large numbers of documents.
 
 They can understand Indian policies and regulations without manually going through hundreds of pages.
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 📈 How can we scale it later?
 
@@ -181,7 +200,7 @@ Eventually it could become:
 
 > **"Google for understanding Indian government rules and policies."**
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 💪 Why is this stronger than a normal AI project?
 
@@ -209,11 +228,11 @@ And we can actually compare:
 
 So the project is useful **and** academically connected to what we're learning.
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 ### 🏆 The main idea in one sentence
 
-> **NiyamSetu is an NLP-powered platform that turns complicated government documents into simple, searchable, multilingual and actionable information while detecting what changed between policies.**
+> **BodhSetu is an NLP-powered platform that turns complicated government documents into simple, searchable, multilingual and actionable information while detecting what changed between policies.**
 
 For now, **this is just the idea**.
 
@@ -223,9 +242,9 @@ If everyone likes the direction, then we can move to the next step:
 
 and decide exactly what we're going to build for the first version.
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
-# Running NiyamSetu
+# Running BodhSetu
 
 ## Start it — one click
 
@@ -283,7 +302,7 @@ Full detail:
 and, for the frontend integration before it,
 [`backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md`](backend/docs/FINAL_FRONTEND_BACKEND_INTEGRATION_REPORT.md).
 
----
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
 
 # Backend — running it
 
@@ -556,3 +575,33 @@ Honest and load-bearing — see `backend/docs/final-backend-evaluation.md` §9 f
 - **Tables flatten**; up to 39.9% of clause-aware segments overlap a detected
   table region (an upper bound, not a false-positive rate).
 - **No authentication.** Anyone who can reach the port can ingest.
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
+
+<div align="center">
+
+## 👥 Group Members
+
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=18&duration=3000&pause=800&color=A78BFA&center=true&vCenter=true&width=500&lines=Team+BodhSetu;Built+together" alt="Team typing animation"/>
+
+<br/>
+
+![Rohit Sharma](https://img.shields.io/badge/Rohit%20Sharma-38bdf8?style=for-the-badge&logo=github&logoColor=white)
+![Diwarka Kaushik](https://img.shields.io/badge/Diwarka%20Kaushik-a78bfa?style=for-the-badge&logo=github&logoColor=white)
+![Shivam Bharti](https://img.shields.io/badge/Shivam%20Bharti-34d399?style=for-the-badge&logo=github&logoColor=white)
+![Rajat](https://img.shields.io/badge/Rajat-f59e0b?style=for-the-badge&logo=github&logoColor=white)
+![Mechapia](https://img.shields.io/badge/Mechapia-f43f5e?style=for-the-badge&logo=github&logoColor=white)
+
+| Rohit Sharma | Diwarka Kaushik | Shivam Bharti | Rajat | Mechapia |
+|:---:|:---:|:---:|:---:|:---:|
+| 🧑‍💻 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 |
+
+</div>
+
+<p align="center"><img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=6,11,20&height=3" width="100%" alt=""/></p>
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%" alt=""/>
+
+</div>
