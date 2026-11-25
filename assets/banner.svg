@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="BodhSetu — Making Government Rules Easy to Understand">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"><animate attributeName="stop-color" values="#0f172a;#1e1b4b;#0c4a6e;#0f172a" dur="12s" repeatCount="indefinite"/></stop>
+      <stop offset="100%" stop-color="#1e3a8a"><animate attributeName="stop-color" values="#1e3a8a;#4c1d95;#0f766e;#1e3a8a" dur="12s" repeatCount="indefinite"/></stop>
+    </linearGradient>
+    <linearGradient id="txt" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38bdf8"/><stop offset="50%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1200" height="320" rx="18" fill="url(#bg)"/>
+  <g stroke="#ffffff" stroke-opacity="0.05">
+    <path d="M0 80H1200M0 160H1200M0 240H1200M300 0V320M600 0V320M900 0V320"/>
+  </g>
+  <!-- floating documents -->
+  <g fill="none" stroke="#7dd3fc" stroke-opacity="0.5" stroke-width="2">
+    <g><rect x="90" y="200" width="46" height="60" rx="5"/><path d="M100 218h26M100 230h26M100 242h16"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -30;0 0" dur="6s" repeatCount="indefinite"/></g>
+    <g><rect x="1060" y="60" width="46" height="60" rx="5"/><path d="M1070 78h26M1070 90h26M1070 102h16"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 25;0 0" dur="7s" repeatCount="indefinite"/></g>
+    <g><rect x="230" y="40" width="34" height="44" rx="4"/><path d="M238 56h18M238 66h18"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;10 18;0 0" dur="8s" repeatCount="indefinite"/></g>
+    <g><rect x="930" y="215" width="34" height="44" rx="4"/><path d="M938 231h18M938 241h18"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;-12 -20;0 0" dur="9s" repeatCount="indefinite"/></g>
+  </g>
+  <!-- bridge (Setu) arc -->
+  <path d="M380 215 Q600 120 820 215" fill="none" stroke="url(#txt)" stroke-width="3" stroke-dasharray="8 10" opacity="0.8">
+    <animate attributeName="stroke-dashoffset" from="0" to="-72" dur="3s" repeatCount="indefinite"/>
+  </path>
+  <circle r="6" fill="#fff" filter="url(#glow)">
+    <animateMotion dur="4s" repeatCount="indefinite" path="M380 215 Q600 120 820 215"/>
+  </circle>
+  <!-- title -->
+  <text x="600" y="130" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="84" font-weight="800" fill="url(#txt)" filter="url(#glow)">BodhSetu
+    <animate attributeName="opacity" values="0;1" dur="1.4s" fill="freeze"/>
+  </text>
+  <text x="600" y="268" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="26" fill="#e2e8f0">Making Government Rules Easy to Understand
+    <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.4;1" dur="2.2s" fill="freeze"/>
+  </text>
+  <!-- particles -->
+  <g fill="#fff">
+    <circle cx="150" cy="60" r="2"><animate attributeName="opacity" values="0.1;1;0.1" dur="3s" repeatCount="indefinite"/></circle>
+    <circle cx="470" cy="40" r="2"><animate attributeName="opacity" values="0.1;1;0.1" dur="4s" repeatCount="indefinite"/></circle>
+    <circle cx="760" cy="50" r="2"><animate attributeName="opacity" values="0.1;1;0.1" dur="2.5s" repeatCount="indefinite"/></circle>
+    <circle cx="1000" cy="270" r="2"><animate attributeName="opacity" values="0.1;1;0.1" dur="3.5s" repeatCount="indefinite"/></circle>
+    <circle cx="60" cy="150" r="2"><animate attributeName="opacity" values="0.1;1;0.1" dur="5s" repeatCount="indefinite"/></circle>
+    <circle cx="1140" cy="180" r="2"><animate attributeName="opacity" values="0.1;1;0.1" dur="2.8s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>
