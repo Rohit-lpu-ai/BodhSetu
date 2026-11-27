@@ -601,11 +601,12 @@ Honest and load-bearing — see `backend/docs/final-backend-evaluation.md` §9 f
 <a href="https://github.com/Rajat6125">
   <img src="https://img.shields.io/badge/Rajat-f59e0b?style=for-the-badge&logo=github&logoColor=white" alt="Rajat"/>
 </a>
-<img src="https://img.shields.io/badge/Mechapia-f43f5e?style=for-the-badge&logo=github&logoColor=white" alt="Mechapia"/>
-
+<a href="https://github.com/mechapaia">
+  <img src="https://img.shields.io/badge/Mechapaia-f43f5e?style=for-the-badge&logo=github&logoColor=white" alt="Mechapaia"/>
+</a>
 <br/>
 
-| Rohit Sharma | Diwarka Kaushik | Shivam Bharti | Rajat | Mechapia |
+| Rohit Sharma | Diwarka Kaushik | Shivam Bharti | Rajat | Mechapaia |
 |:---:|:---:|:---:|:---:|:---:|
 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 | 🧑‍💻 |
 
